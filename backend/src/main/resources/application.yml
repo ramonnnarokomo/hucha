@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: hucha
+  datasource:
+    # Por defecto, H2 en memoria en modo PostgreSQL: arranca sin instalar nada.
+    # Con el perfil "postgres" se usa PostgreSQL de verdad (ver application-postgres.yml).
+    url: jdbc:h2:mem:hucha;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    locations: classpath:db/migration
+  jackson:
+    default-property-inclusion: non_null
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: 8080
+  # Detrás de nginx: la IP real llega en X-Forwarded-For y Tomcat solo se fía si viene de la red interna.
+  forward-headers-strategy: native
+  error:
+    include-message: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+hucha:
+  zone: Europe/Madrid
+  security:
+    # Secreto HMAC para firmar los JWT. Si se deja vacío se genera uno aleatorio al arrancar
+    # (las sesiones no sobreviven a un reinicio). En producción va en la variable JWT_SECRET.
+    jwt-secret: ${JWT_SECRET:}
+    access-token-ttl: 15m
+    refresh-token-ttl: 30d
+    max-failed-logins: 5
+    lock-duration: 15m
+    refresh-cookie-secure: false
+  transfers:
+    max-amount: 10000.00
+    sca-threshold: 1000.00
+    sca-new-payee-threshold: 30.00
+    sca-code-ttl: 5m
+    sca-max-attempts: 3
+  accounts:
+    default-daily-limit: 3000.00
+    welcome-gift: 1000.00
+  outbox:
+    relay-enabled: true
+    relay-interval-ms: 500
+  demo-data: true

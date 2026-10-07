@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/hucha}
+    username: ${DB_USER:hucha}
+    password: ${DB_PASSWORD}
+
+hucha:
+  security:
+    refresh-cookie-secure: ${REFRESH_COOKIE_SECURE:false}
+  demo-data: ${DEMO_DATA:true}
