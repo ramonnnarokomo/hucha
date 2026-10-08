@@ -1,0 +1,336 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Tarjetas</h1>
+      <p>
+        Tarjeta de débito virtual asociada a tu cuenta. Congélala al momento si no la encuentras.
+      </p>
+    </div>
+    <button
+      type="button"
+      class="btn"
+      (click)="issue()"
+      [disabled]="issuing() || liveCards().length >= 2"
+    >
+      @if (issuing()) {
+        <span class="spinner"></span>
+      } @else {
+        <app-icon name="plus" [size]="18" />
+      }
+      Pedir otra tarjeta
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="grid-top">
+      <span class="skeleton" style="aspect-ratio: 1.586; border-radius: 20px"></span>
+      <span class="skeleton" style="height: 260px; border-radius: var(--radius)"></span>
+    </div>
+  } @else if (card(); as c) {
+    @if (cards().length > 1) {
+      <div class="segmented card-tabs" role="tablist" aria-label="Tus tarjetas">
+        @for (item of cards(); track item.id) {
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="item.id === c.id"
+            (click)="select(item.id)"
+          >
+            •••• {{ item.last4 }}
+            @if (item.status === 'CANCELLED') {
+              <span class="small muted">(cancelada)</span>
+            }
+          </button>
+        }
+      </div>
+    }
+
+    <div class="grid-top">
+      <div class="card-visual-wrap">
+        <div
+          class="card-visual"
+          [class.frozen]="c.status === 'FROZEN'"
+          [class.cancelled]="c.status === 'CANCELLED'"
+          aria-hidden="true"
+        >
+          <div class="cv-top">
+            <span class="cv-brand"><app-icon name="piggy" [size]="22" /> Hucha</span>
+            <span class="cv-type">DÉBITO</span>
+          </div>
+          <span class="cv-chip"></span>
+          <span class="cv-number num">•••• •••• •••• {{ c.last4 }}</span>
+          <div class="cv-bottom">
+            <div>
+              <span class="cv-label">Titular</span>
+              <span class="cv-value">{{ c.holderName }}</span>
+            </div>
+            <div>
+              <span class="cv-label">Caduca</span>
+              <span class="cv-value num">{{ pad(c.expiryMonth) }}/{{ c.expiryYear % 100 }}</span>
+            </div>
+          </div>
+          @if (c.status === 'FROZEN') {
+            <span class="cv-overlay"><app-icon name="snowflake" [size]="40" /> Congelada</span>
+          } @else if (c.status === 'CANCELLED') {
+            <span class="cv-overlay">Cancelada</span>
+          }
+        </div>
+        <p class="visually-hidden">Tarjeta terminada en {{ c.last4 }}, {{ statusLabel(c) }}.</p>
+
+        <div class="spent">
+          <div class="row between small">
+            <span class="muted">Gastado este mes</span>
+            <span
+              ><b class="num">{{ c.spentThisMonth | money }}</b
+              ><span class="muted"> de {{ c.monthlyLimit | money }}</span></span
+            >
+          </div>
+          <span
+            class="progress"
+            [class.warn]="spentPercent() >= 80"
+            role="progressbar"
+            [attr.aria-valuenow]="spentPercent()"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-label="Gasto del mes sobre el límite"
+          >
+            <span [style.width.%]="spentPercent()"></span>
+          </span>
+        </div>
+      </div>
+
+      <section class="card controls" aria-label="Ajustes de la tarjeta">
+        <div class="control">
+          <span class="control-icon"><app-icon name="snowflake" [size]="20" /></span>
+          <div class="grow">
+            <strong>Congelar tarjeta</strong>
+            <p class="small muted">
+              Bloquea todos los pagos al momento. La puedes reactivar cuando quieras.
+            </p>
+          </div>
+          <label class="switch">
+            <input
+              type="checkbox"
+              [checked]="c.status === 'FROZEN'"
+              [disabled]="c.status === 'CANCELLED' || updating()"
+              (change)="toggleFrozen(c, $event)"
+              aria-label="Congelar tarjeta"
+            />
+            <span></span>
+          </label>
+        </div>
+        <div class="control">
+          <span class="control-icon"><app-icon name="globe" [size]="20" /></span>
+          <div class="grow">
+            <strong>Compras por internet</strong>
+            <p class="small muted">Si no compras online, desactívalo: menos riesgo de fraude.</p>
+          </div>
+          <label class="switch">
+            <input
+              type="checkbox"
+              [checked]="c.onlineEnabled"
+              [disabled]="c.status === 'CANCELLED' || updating()"
+              (change)="toggleOnline(c, $event)"
+              aria-label="Compras por internet"
+            />
+            <span></span>
+          </label>
+        </div>
+        <div class="control column">
+          <div class="row">
+            <span class="control-icon"><app-icon name="activity" [size]="20" /></span>
+            <div class="grow">
+              <strong>Límite mensual</strong>
+              <p class="small muted">Las compras que lo superen se deniegan.</p>
+            </div>
+            <strong class="num limit-value">{{ limitDraft() | money }}</strong>
+          </div>
+          <input
+            type="range"
+            class="range"
+            min="50"
+            max="10000"
+            step="50"
+            [value]="limitDraft()"
+            [disabled]="c.status === 'CANCELLED'"
+            (input)="limitDraft.set(+$any($event.target).value)"
+            aria-label="Límite mensual"
+          />
+          @if (limitDraft() !== c.monthlyLimit) {
+            <div class="row end">
+              <button
+                type="button"
+                class="btn btn-sm btn-ghost"
+                (click)="limitDraft.set(c.monthlyLimit)"
+              >
+                Deshacer
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                (click)="saveLimit(c)"
+                [disabled]="updating()"
+              >
+                Guardar límite
+              </button>
+            </div>
+          }
+        </div>
+        @if (c.status !== 'CANCELLED') {
+          <button
+            type="button"
+            class="btn btn-danger btn-sm cancel-btn"
+            (click)="confirmCancel.set(true)"
+          >
+            <app-icon name="trash" [size]="15" /> Cancelar tarjeta
+          </button>
+        }
+      </section>
+    </div>
+
+    <div class="grid-bottom">
+      <section class="card simulator" aria-labelledby="sim-title">
+        <div class="card-header">
+          <div>
+            <h2 id="sim-title">Simulador de compras</h2>
+            <p>Prueba cómo autoriza Hucha un pago con esta tarjeta.</p>
+          </div>
+          <span class="badge brand">Demo</span>
+        </div>
+        <form class="stack" [formGroup]="purchase" (ngSubmit)="simulate(c)">
+          <div class="field">
+            <label for="merchant">Comercio</label>
+            <input id="merchant" class="input" formControlName="merchant" maxlength="120" />
+          </div>
+          <div class="sim-row">
+            <div class="field">
+              <label for="category">Categoría</label>
+              <select id="category" class="input" formControlName="category">
+                @for (cat of categories; track cat) {
+                  <option [value]="cat">{{ categoryLabel(cat) }}</option>
+                }
+              </select>
+            </div>
+            <div class="field">
+              <label for="sim-amount">Importe</label>
+              <input
+                id="sim-amount"
+                class="input"
+                formControlName="amount"
+                inputmode="decimal"
+                placeholder="0,00"
+              />
+            </div>
+          </div>
+          <label class="checkbox"
+            ><input type="checkbox" formControlName="online" /> Compra por internet</label
+          >
+          <div class="row wrap">
+            <span class="small muted grow"
+              >Prueba: congela la tarjeta, desactiva internet o supera el límite.</span
+            >
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="simulating() || c.status === 'CANCELLED'"
+            >
+              @if (simulating()) {
+                <span class="spinner"></span>
+              } @else {
+                <app-icon name="card" [size]="17" />
+              }
+              Pagar
+            </button>
+          </div>
+          @if (lastResult(); as r) {
+            <div
+              class="alert"
+              [class.success]="r.status === 'APPROVED'"
+              [class.error]="r.status === 'DECLINED'"
+              role="status"
+            >
+              <app-icon [name]="r.status === 'APPROVED' ? 'check' : 'x'" [size]="18" />
+              <span>
+                @if (r.status === 'APPROVED') {
+                  <b>Pago aprobado.</b> {{ r.amount | money }} en {{ r.merchant }}.
+                } @else {
+                  <b>Pago denegado.</b> {{ declineText(r) }}
+                }
+              </span>
+            </div>
+          }
+        </form>
+      </section>
+
+      <section class="card flush" aria-labelledby="tx-title">
+        <div class="card-header padded">
+          <div>
+            <h2 id="tx-title">Operaciones con la tarjeta</h2>
+            <p>Incluye los pagos denegados</p>
+          </div>
+        </div>
+        <ul class="list tx-list">
+          @for (tx of transactions(); track tx.id) {
+            <li class="list-item">
+              <span
+                class="cat"
+                [style.color]="categoryColor(tx.category)"
+                [style.background]="categoryColor(tx.category) + '1f'"
+              >
+                <app-icon [name]="categoryIcon(tx.category)" [size]="18" />
+              </span>
+              <div class="grow">
+                <div class="truncate tx-title">{{ tx.merchant }}</div>
+                <div class="small muted truncate">
+                  {{ tx.online ? 'Online' : 'En tienda' }} · {{ tx.createdAt | shortDate }}
+                  {{ tx.createdAt | time }}
+                </div>
+              </div>
+              <div class="tx-right">
+                <span class="num tx-amount" [class.struck]="tx.status === 'DECLINED'"
+                  >-{{ tx.amount | money }}</span
+                >
+                @if (tx.status === 'DECLINED') {
+                  <span class="badge bad" [title]="tx.declineMessage ?? ''">{{
+                    declineLabel(tx.declineReason)
+                  }}</span>
+                }
+              </div>
+            </li>
+          } @empty {
+            <li class="empty small">Aún no has usado esta tarjeta.</li>
+          }
+        </ul>
+        @if (txPage() + 1 < txTotalPages()) {
+          <div class="pager">
+            <span></span>
+            <button type="button" class="btn btn-sm" (click)="moreTransactions(c)">
+              Cargar más
+            </button>
+          </div>
+        }
+      </section>
+    </div>
+  } @else {
+    <div class="card empty">
+      <app-icon name="card" [size]="32" />
+      <strong>No tienes ninguna tarjeta activa</strong>
+      <button type="button" class="btn btn-primary" (click)="issue()" [disabled]="issuing()">
+        Pedir tarjeta virtual
+      </button>
+    </div>
+  }
+</div>
+
+<app-modal title="Cancelar tarjeta" [open]="confirmCancel()" (closed)="confirmCancel.set(false)">
+  <p>
+    Si la cancelas, no se podrá volver a usar. Si solo la has perdido de vista, mejor
+    <b>congélala</b>: la puedes reactivar después.
+  </p>
+  <div class="modal-actions">
+    <button type="button" class="btn" (click)="confirmCancel.set(false)">Volver</button>
+    <button type="button" class="btn btn-danger" (click)="cancelCard()">
+      Cancelar definitivamente
+    </button>
+  </div>
+</app-modal>

@@ -53,6 +53,25 @@ export const routes: Routes = [
         canActivate: [customerGuard],
         loadComponent: () => import('./features/payees/payees-page').then((m) => m.PayeesPage),
       },
+      {
+        path: 'huchas',
+        title: 'Huchas',
+        canActivate: [customerGuard],
+        loadComponent: () => import('./features/savings/savings-page').then((m) => m.SavingsPage),
+      },
+      {
+        path: 'tarjetas',
+        title: 'Tarjetas',
+        canActivate: [customerGuard],
+        loadComponent: () => import('./features/cards/cards-page').then((m) => m.CardsPage),
+      },
+      {
+        path: 'analitica',
+        title: 'Analítica',
+        canActivate: [customerGuard],
+        loadComponent: () =>
+          import('./features/analytics/analytics-page').then((m) => m.AnalyticsPage),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

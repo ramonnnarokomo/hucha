@@ -1,0 +1,299 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Huchas</h1>
+      <p>
+        Aparta dinero para tus objetivos. Mover dinero entre tu cuenta y tus huchas es instantáneo.
+      </p>
+    </div>
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="openCreate()"
+      [disabled]="pots().length >= 10"
+    >
+      <app-icon name="plus" [size]="18" /> Nueva hucha
+    </button>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi">
+      <span>Total ahorrado</span>
+      <strong>{{ totalSaved() | money }}</strong>
+      <small>en {{ pots().length }} {{ pots().length === 1 ? 'hucha' : 'huchas' }}</small>
+    </div>
+    <div class="kpi">
+      <span>Objetivos</span>
+      <strong>{{ totalGoals() | money }}</strong>
+      <small>{{ overallProgress() }}% conseguido</small>
+    </div>
+    <div class="kpi">
+      <span>Disponible en {{ checking()?.name ?? 'tu cuenta' }}</span>
+      <strong>{{ checking()?.balance ?? 0 | money }}</strong>
+      <small>de donde sale y a donde vuelve el dinero</small>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="pots">
+      @for (i of [1, 2, 3]; track i) {
+        <span class="skeleton" style="height: 210px; border-radius: var(--radius)"></span>
+      }
+    </div>
+  } @else {
+    <div class="pots">
+      @for (pot of pots(); track pot.id) {
+        <article class="pot card" [style.--pot]="color(pot)">
+          <div class="pot-top">
+            <span class="pot-icon"><app-icon [name]="pot.icon ?? 'piggy'" [size]="22" /></span>
+            <div class="grow">
+              <h2 class="truncate">{{ pot.name }}</h2>
+              @if (pot.status === 'FROZEN') {
+                <span class="badge bad">Congelada</span>
+              }
+            </div>
+            <button
+              type="button"
+              class="btn btn-ghost btn-icon btn-sm"
+              aria-label="Editar hucha"
+              title="Editar"
+              (click)="openEdit(pot)"
+            >
+              <app-icon name="edit" [size]="17" />
+            </button>
+          </div>
+
+          <strong class="pot-balance num">{{ pot.balance | money }}</strong>
+
+          @if (pot.goalAmount) {
+            <div class="goal">
+              <span
+                class="progress"
+                [class.done]="progress(pot) >= 100"
+                role="progressbar"
+                [attr.aria-valuenow]="progress(pot)"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                [attr.aria-label]="'Progreso de ' + pot.name"
+              >
+                <span [style.width.%]="progress(pot)"></span>
+              </span>
+              <div class="row between small">
+                @if (progress(pot) >= 100) {
+                  <span class="positive"><b>¡Objetivo conseguido!</b></span>
+                } @else {
+                  <span class="muted"
+                    >Faltan <b class="num">{{ pot.goalAmount - pot.balance | money }}</b></span
+                  >
+                }
+                <span class="muted num">{{ progress(pot) }}% de {{ pot.goalAmount | money }}</span>
+              </div>
+            </div>
+          } @else {
+            <p class="small muted goal">Sin objetivo. Ahorra lo que quieras.</p>
+          }
+
+          <div class="pot-actions">
+            <button
+              type="button"
+              class="btn btn-sm"
+              (click)="openMove(pot, 'deposit')"
+              [disabled]="pot.status !== 'ACTIVE'"
+            >
+              <app-icon name="plus" [size]="15" /> Meter
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm"
+              (click)="openMove(pot, 'withdraw')"
+              [disabled]="pot.status !== 'ACTIVE' || pot.balance <= 0"
+            >
+              <app-icon name="download" [size]="15" /> Sacar
+            </button>
+          </div>
+        </article>
+      }
+      @if (pots().length < 10) {
+        <button type="button" class="pot new" (click)="openCreate()">
+          <app-icon name="plus" [size]="26" />
+          <span>Crear una hucha</span>
+          <small class="muted">Viajes, imprevistos, un capricho...</small>
+        </button>
+      }
+    </div>
+  }
+</div>
+
+<!-- Crear / editar -->
+<app-modal
+  [title]="editing() ? 'Editar hucha' : 'Nueva hucha'"
+  [open]="formOpen()"
+  (closed)="formOpen.set(false)"
+>
+  <form class="stack" [formGroup]="form" (ngSubmit)="save()">
+    <div class="field">
+      <label for="pot-name">Nombre</label>
+      <input
+        id="pot-name"
+        class="input"
+        formControlName="name"
+        maxlength="40"
+        placeholder="Ej.: Viaje a Japón"
+        autocomplete="off"
+      />
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+        <span class="error-text">Ponle un nombre (máximo 40 caracteres).</span>
+      }
+    </div>
+    <div class="field">
+      <label for="pot-goal">Objetivo <span class="muted">(opcional)</span></label>
+      <input
+        id="pot-goal"
+        class="input"
+        formControlName="goal"
+        inputmode="decimal"
+        placeholder="Ej.: 3.000"
+        autocomplete="off"
+      />
+      @if (goalError()) {
+        <span class="error-text">{{ goalError() }}</span>
+      }
+    </div>
+    <fieldset class="field icons">
+      <legend class="label">Icono</legend>
+      <div class="icon-grid">
+        @for (item of icons; track item.value) {
+          <button
+            type="button"
+            class="icon-option"
+            [style.--pot]="item.color"
+            [attr.aria-pressed]="form.controls.icon.value === item.value"
+            [attr.aria-label]="item.label"
+            [title]="item.label"
+            (click)="form.controls.icon.setValue(item.value)"
+          >
+            <app-icon [name]="item.value" [size]="20" />
+          </button>
+        }
+      </div>
+    </fieldset>
+    @if (formError()) {
+      <div class="alert error" role="alert">{{ formError() }}</div>
+    }
+    <div class="modal-actions split">
+      @if (editing(); as pot) {
+        <button type="button" class="btn btn-danger" (click)="askClose(pot)">Cerrar hucha</button>
+      }
+      <span class="grow"></span>
+      <button type="button" class="btn" (click)="formOpen.set(false)">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">
+        @if (saving()) {
+          <span class="spinner"></span>
+        }
+        {{ editing() ? 'Guardar' : 'Crear hucha' }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Meter / sacar -->
+<app-modal [title]="moveTitle()" [open]="moving() !== null" (closed)="moving.set(null)">
+  @if (moving(); as m) {
+    <form class="stack" (ngSubmit)="move()">
+      <div class="flow">
+        <div class="flow-end">
+          <span class="small muted">Desde</span>
+          <strong class="truncate">{{
+            m.direction === 'deposit' ? checking()?.name : m.pot.name
+          }}</strong>
+          <span class="small num">{{
+            (m.direction === 'deposit' ? checking()?.balance : m.pot.balance) ?? 0 | money
+          }}</span>
+        </div>
+        <app-icon name="send" [size]="20" class="muted" />
+        <div class="flow-end">
+          <span class="small muted">A</span>
+          <strong class="truncate">{{
+            m.direction === 'deposit' ? m.pot.name : checking()?.name
+          }}</strong>
+          <span class="small num">{{
+            (m.direction === 'deposit' ? m.pot.balance : checking()?.balance) ?? 0 | money
+          }}</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="move-amount" class="visually-hidden">Importe</label>
+        <input
+          id="move-amount"
+          class="input input-amount"
+          [formControl]="moveAmount"
+          inputmode="decimal"
+          placeholder="0,00 €"
+          autocomplete="off"
+          [class.invalid]="!!moveError()"
+        />
+        <div class="chips center">
+          @for (value of [10, 50, 100]; track value) {
+            <button type="button" class="chip" (click)="moveAmount.setValue(value.toString())">
+              {{ value }} €
+            </button>
+          }
+          @if (m.direction === 'withdraw') {
+            <button
+              type="button"
+              class="chip"
+              (click)="moveAmount.setValue(m.pot.balance.toFixed(2).replace('.', ','))"
+            >
+              Todo
+            </button>
+          } @else if (m.pot.goalAmount && m.pot.goalAmount > m.pot.balance) {
+            <button
+              type="button"
+              class="chip"
+              (click)="
+                moveAmount.setValue((m.pot.goalAmount - m.pot.balance).toFixed(2).replace('.', ','))
+              "
+            >
+              Lo que falta
+            </button>
+          }
+        </div>
+        @if (moveError(); as message) {
+          <span class="error-text center">{{ message }}</span>
+        }
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn" (click)="moving.set(null)">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving() || !moveValid()">
+          @if (saving()) {
+            <span class="spinner"></span>
+          }
+          {{ m.direction === 'deposit' ? 'Meter' : 'Sacar' }} {{ moveParsed() ?? 0 | money }}
+        </button>
+      </div>
+    </form>
+  }
+</app-modal>
+
+<!-- Cerrar -->
+<app-modal title="Cerrar hucha" [open]="closing() !== null" (closed)="closing.set(null)">
+  @if (closing(); as pot) {
+    @if (pot.balance > 0) {
+      <p>
+        «{{ pot.name }}» tiene <b class="num">{{ pot.balance | money }}</b
+        >. Al cerrarla, ese dinero vuelve a {{ checking()?.name ?? 'tu cuenta' }}.
+      </p>
+    } @else {
+      <p>¿Seguro que quieres cerrar «{{ pot.name }}»?</p>
+    }
+    <div class="modal-actions">
+      <button type="button" class="btn" (click)="closing.set(null)">Cancelar</button>
+      <button type="button" class="btn btn-danger" (click)="closePot(pot)" [disabled]="saving()">
+        @if (saving()) {
+          <span class="spinner"></span>
+        }
+        {{ pot.balance > 0 ? 'Sacar el dinero y cerrar' : 'Cerrar hucha' }}
+      </button>
+    </div>
+  }
+</app-modal>

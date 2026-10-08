@@ -1,0 +1,176 @@
+.pots {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+}
+
+.pot {
+  --pot: var(--accent);
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Franja de color arriba con el color de la hucha. */
+.pot::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: var(--pot);
+}
+
+.pot-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pot-top h2 {
+  font-size: 1.05rem;
+}
+
+.pot-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  color: var(--pot);
+  background: color-mix(in srgb, var(--pot) 14%, transparent);
+}
+
+.pot-balance {
+  font-size: 1.9rem;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.goal {
+  display: grid;
+  gap: 8px;
+  min-height: 42px;
+}
+
+.goal .progress {
+  height: 8px;
+}
+
+.goal .progress span {
+  background: var(--pot);
+}
+
+.goal .progress.done span {
+  background: var(--positive);
+}
+
+.pot-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.pot-actions .btn {
+  flex: 1;
+}
+
+.pot.new {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 6px;
+  min-height: 210px;
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pot.new::before {
+  display: none;
+}
+
+.pot.new:hover {
+  border-color: var(--brand);
+  color: var(--brand-text);
+  background: var(--brand-soft);
+}
+
+/* ---------- Formulario ---------- */
+
+.icons {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.icon-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(9, 1fr);
+}
+
+.icon-option {
+  --pot: var(--accent);
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--pot) 12%, transparent);
+  color: var(--pot);
+  cursor: pointer;
+}
+
+.icon-option[aria-pressed='true'] {
+  border-color: var(--pot);
+  background: color-mix(in srgb, var(--pot) 22%, transparent);
+}
+
+.modal-actions.split {
+  align-items: center;
+}
+
+.center {
+  justify-content: center;
+  text-align: center;
+}
+
+/* ---------- Mover dinero ---------- */
+
+.flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.flow-end {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.flow-end:last-child {
+  text-align: right;
+}
+
+.field .chips {
+  margin-top: 8px;
+}
+
+@media (max-width: 520px) {
+  .icon-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}

@@ -1,0 +1,248 @@
+.card-tabs {
+  justify-self: start;
+}
+
+.grid-top {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+  align-items: start;
+}
+
+.grid-bottom {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  align-items: start;
+}
+
+/* ---------- Tarjeta visual ---------- */
+
+.card-visual-wrap {
+  display: grid;
+  gap: 18px;
+}
+
+.card-visual {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 14px;
+  aspect-ratio: 1.586;
+  padding: 22px 24px;
+  border-radius: 20px;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgb(255 255 255 / 0.18), transparent 55%),
+    radial-gradient(80% 70% at 0% 100%, rgb(45 212 191 / 0.35), transparent 60%),
+    linear-gradient(135deg, var(--hero-from), var(--hero-to));
+  box-shadow:
+    0 18px 40px -12px rgb(6 78 72 / 0.55),
+    inset 0 1px 0 rgb(255 255 255 / 0.15);
+  transition: filter 0.3s;
+}
+
+.card-visual.frozen {
+  filter: grayscale(0.85) brightness(0.95);
+}
+
+.card-visual.cancelled {
+  filter: grayscale(1) opacity(0.55);
+}
+
+.cv-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cv-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.cv-type {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  opacity: 0.8;
+}
+
+.cv-chip {
+  width: 44px;
+  height: 32px;
+  border-radius: 7px;
+  background:
+    linear-gradient(90deg, transparent 45%, rgb(0 0 0 / 0.18) 45% 55%, transparent 55%),
+    linear-gradient(0deg, transparent 45%, rgb(0 0 0 / 0.18) 45% 55%, transparent 55%),
+    linear-gradient(135deg, #fde68a, #d4a017);
+}
+
+.cv-number {
+  align-self: end;
+  font-size: clamp(1.05rem, 2.6vw, 1.4rem);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+.cv-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cv-bottom > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cv-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.cv-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cv-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  background: rgb(15 23 42 / 0.55);
+  backdrop-filter: blur(4px);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+}
+
+.spent {
+  display: grid;
+  gap: 8px;
+}
+
+.spent .progress {
+  height: 8px;
+}
+
+.spent .progress.warn span {
+  background: var(--warning);
+}
+
+/* ---------- Controles ---------- */
+
+.controls {
+  display: grid;
+  gap: 0;
+  padding: 8px 20px;
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.control.column {
+  display: grid;
+  gap: 12px;
+}
+
+.control-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--brand-soft);
+  color: var(--brand-text);
+}
+
+.control p {
+  margin-top: 2px;
+}
+
+.limit-value {
+  font-size: 1.1rem;
+}
+
+.range {
+  width: 100%;
+  accent-color: var(--brand);
+}
+
+.row.end {
+  justify-content: flex-end;
+}
+
+.cancel-btn {
+  justify-self: start;
+  margin: 16px 0 10px;
+}
+
+/* ---------- Simulador y operaciones ---------- */
+
+.sim-row {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.cat {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+.tx-title {
+  font-weight: 600;
+}
+
+.tx-right {
+  display: grid;
+  justify-items: end;
+  gap: 3px;
+}
+
+.tx-amount {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tx-amount.struck {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+@media (max-width: 960px) {
+  .grid-top,
+  .grid-bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .card-visual-wrap {
+    max-width: 420px;
+  }
+}
