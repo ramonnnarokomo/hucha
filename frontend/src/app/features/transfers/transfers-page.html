@@ -1,0 +1,144 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Transferencias</h1>
+      <p>Las que has enviado. Las que recibes aparecen en los movimientos de tu cuenta.</p>
+    </div>
+    <a routerLink="/transferir" class="btn btn-primary"
+      ><app-icon name="send" [size]="18" /> Nueva transferencia</a
+    >
+  </div>
+
+  <div class="kpis">
+    <div class="kpi">
+      <span>Enviado este mes</span>
+      <strong>{{ sentThisMonth() | money }}</strong>
+      <small
+        >{{ countThisMonth() }}
+        {{ countThisMonth() === 1 ? 'transferencia' : 'transferencias' }}</small
+      >
+    </div>
+    <div class="kpi">
+      <span>Total en el historial</span>
+      <strong>{{ totalItems() }}</strong>
+      <small>transferencias enviadas</small>
+    </div>
+    <div class="kpi">
+      <span>Pendientes de código</span>
+      <strong>{{ pending() }}</strong>
+      <small>caducan a los 5 minutos</small>
+    </div>
+  </div>
+
+  <section class="card flush">
+    @if (loading() && transfers().length === 0) {
+      <div class="stack padded" style="padding-bottom: 20px">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <span class="skeleton" style="height: 48px"></span>
+        }
+      </div>
+    } @else {
+      @for (group of groups(); track group.day) {
+        <h3 class="day">{{ group.day }}</h3>
+        <ul class="list">
+          @for (t of group.items; track t.id) {
+            <li>
+              <button type="button" class="list-item" (click)="selected.set(t)">
+                <span class="avatar" [class.brand]="t.internal">{{
+                  initials(t.beneficiaryName)
+                }}</span>
+                <span class="grow">
+                  <span class="title truncate">{{ t.beneficiaryName }}</span>
+                  <span class="sub truncate"
+                    >{{ t.concept || shortIban(t.toIban) }} · {{ t.createdAt | time }}</span
+                  >
+                </span>
+                <span class="right">
+                  <span class="amount num" [class.struck]="t.status !== 'COMPLETED'"
+                    >-{{ t.amount | money }}</span
+                  >
+                  @if (t.status !== 'COMPLETED') {
+                    <span class="badge" [class]="'badge ' + status[t.status].tone">{{
+                      status[t.status].label
+                    }}</span>
+                  } @else if (t.internal) {
+                    <span class="sub">Al instante</span>
+                  } @else {
+                    <span class="sub">SEPA</span>
+                  }
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+      } @empty {
+        <div class="empty">
+          <app-icon name="send" [size]="28" />
+          <span>Todavía no has enviado ninguna transferencia.</span>
+          <a routerLink="/transferir" class="btn btn-sm">Hacer la primera</a>
+        </div>
+      }
+      @if (transfers().length > 0) {
+        <div class="pager">
+          <span>Mostrando {{ transfers().length }} de {{ totalItems() }}</span>
+          @if (page() + 1 < totalPages()) {
+            <button type="button" class="btn btn-sm" (click)="loadMore()" [disabled]="loading()">
+              Cargar más
+            </button>
+          }
+        </div>
+      }
+    }
+  </section>
+</div>
+
+<app-modal
+  title="Detalle de la transferencia"
+  [open]="selected() !== null"
+  (closed)="selected.set(null)"
+>
+  @if (selected(); as t) {
+    <div class="detail-head">
+      <strong class="num">-{{ t.amount | money }}</strong>
+      <span class="badge" [class]="'badge ' + status[t.status].tone">{{
+        status[t.status].label
+      }}</span>
+    </div>
+    <dl class="definition">
+      <dt>Beneficiario</dt>
+      <dd>{{ t.beneficiaryName }}</dd>
+      <dt>IBAN</dt>
+      <dd class="num">{{ t.toIban | iban }}</dd>
+      @if (t.concept) {
+        <dt>Concepto</dt>
+        <dd>{{ t.concept }}</dd>
+      }
+      <dt>Creada</dt>
+      <dd>{{ t.createdAt | longDateTime }}</dd>
+      @if (t.completedAt) {
+        <dt>Completada</dt>
+        <dd>{{ t.completedAt | longDateTime }}</dd>
+      }
+      <dt>Tipo</dt>
+      <dd>{{ t.internal ? 'Entre clientes de Hucha' : 'SEPA (simulada)' }}</dd>
+      <dt>Verificación</dt>
+      <dd>{{ t.scaRequired ? 'Con código (SCA)' : 'No necesaria' }}</dd>
+      @if (t.rejectionReason) {
+        <dt>Motivo</dt>
+        <dd class="negative">{{ rejection(t.rejectionReason) }}</dd>
+      }
+      <dt>Referencia</dt>
+      <dd class="num">{{ t.id.slice(0, 8).toUpperCase() }}</dd>
+    </dl>
+    <div class="modal-actions">
+      @if (t.status === 'PENDING_SCA') {
+        <button type="button" class="btn btn-danger" (click)="cancel(t)">
+          Cancelar transferencia
+        </button>
+      } @else if (t.status === 'COMPLETED') {
+        <a routerLink="/transferir" class="btn">Enviar otra</a>
+        <a [routerLink]="['/cuentas', t.fromAccountId]" class="btn btn-primary">Ver en la cuenta</a>
+      }
+    </div>
+  }
+</app-modal>

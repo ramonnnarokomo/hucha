@@ -27,6 +27,32 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard-page').then((m) => m.DashboardPage),
       },
+      {
+        path: 'cuentas/:id',
+        title: 'Movimientos',
+        canActivate: [customerGuard],
+        loadComponent: () => import('./features/accounts/account-page').then((m) => m.AccountPage),
+      },
+      {
+        path: 'transferir',
+        title: 'Transferir',
+        canActivate: [customerGuard],
+        loadComponent: () =>
+          import('./features/transfers/transfer-page').then((m) => m.TransferPage),
+      },
+      {
+        path: 'transferencias',
+        title: 'Transferencias',
+        canActivate: [customerGuard],
+        loadComponent: () =>
+          import('./features/transfers/transfers-page').then((m) => m.TransfersPage),
+      },
+      {
+        path: 'beneficiarios',
+        title: 'Beneficiarios',
+        canActivate: [customerGuard],
+        loadComponent: () => import('./features/payees/payees-page').then((m) => m.PayeesPage),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

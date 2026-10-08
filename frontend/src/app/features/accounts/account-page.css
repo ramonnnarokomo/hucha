@@ -1,0 +1,90 @@
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  color: var(--muted);
+}
+
+.iban-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.top-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+}
+
+.balance-card {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.balance {
+  font-size: 2.4rem;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.balance-card .definition {
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.statement {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.grow-btn {
+  flex: 1;
+}
+
+.filters {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.filter-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.search {
+  position: relative;
+  display: block;
+}
+
+.search app-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.search .input {
+  padding-left: 42px;
+}
+
+.dimmed {
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+
+@media (max-width: 900px) {
+  .top-grid,
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+}

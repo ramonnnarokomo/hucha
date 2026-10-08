@@ -1,0 +1,465 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Transferir</h1>
+      <p>A cualquier IBAN de la zona SEPA. Entre clientes de Hucha llega al instante.</p>
+    </div>
+    <a routerLink="/transferencias" class="btn"><app-icon name="swap" [size]="18" /> Historial</a>
+  </div>
+
+  @if (step() !== 'done') {
+    <ol class="stepper" aria-label="Pasos">
+      @for (s of steps; track s.id; let i = $index) {
+        <li
+          [class.active]="i === stepIndex()"
+          [class.complete]="i < stepIndex()"
+          [attr.aria-current]="i === stepIndex() ? 'step' : null"
+        >
+          <span class="dot">
+            @if (i < stepIndex()) {
+              <app-icon name="check" [size]="14" [stroke]="2.6" />
+            } @else {
+              {{ i + 1 }}
+            }
+          </span>
+          <span class="step-label">{{ s.label }}</span>
+        </li>
+      }
+    </ol>
+  }
+
+  <div class="layout" [class.single]="step() === 'done'">
+    <section class="card main">
+      @switch (step()) {
+        <!-- ============ 1. Destinatario ============ -->
+        @case ('recipient') {
+          <h2>¿A quién se lo envías?</h2>
+
+          @if (loading()) {
+            <div class="stack">
+              @for (i of [1, 2, 3]; track i) {
+                <span class="skeleton" style="height: 52px"></span>
+              }
+            </div>
+          } @else {
+            @if (activeAccounts().length > 1) {
+              <div class="block">
+                <h3 class="label">Entre tus cuentas</h3>
+                <div class="own-accounts">
+                  @for (account of activeAccounts(); track account.id) {
+                    <button type="button" class="own" (click)="chooseOwn(account)">
+                      <span class="own-icon" [class.pot]="account.type === 'SAVINGS'">
+                        <app-icon
+                          [name]="account.type === 'SAVINGS' ? (account.icon ?? 'piggy') : 'wallet'"
+                          [size]="18"
+                        />
+                      </span>
+                      <span class="truncate">{{ account.name }}</span>
+                      <span class="small muted num">{{ account.balance | money }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="block">
+              <div class="row between">
+                <h3 class="label">Beneficiarios guardados</h3>
+                <a routerLink="/beneficiarios" class="small">Gestionar</a>
+              </div>
+              @if (payees().length > 4) {
+                <input
+                  class="input"
+                  type="search"
+                  placeholder="Buscar beneficiario"
+                  aria-label="Buscar beneficiario"
+                  [value]="payeeFilter()"
+                  (input)="payeeFilter.set($any($event.target).value)"
+                />
+              }
+              <ul class="list bordered">
+                @for (p of filteredPayees(); track p.id) {
+                  <li>
+                    <button type="button" class="list-item" (click)="choosePayee(p)">
+                      <span class="avatar">{{ initials(p.name) }}</span>
+                      <span class="grow">
+                        <span class="truncate strong">{{ p.alias || p.name }}</span>
+                        <span class="small muted truncate num"
+                          >{{ p.alias ? p.name + ' · ' : '' }}{{ shortIban(p.iban) }}</span
+                        >
+                      </span>
+                      @if (p.internal) {
+                        <span class="badge brand">Hucha</span>
+                      }
+                      <app-icon name="send" [size]="16" class="muted" />
+                    </button>
+                  </li>
+                } @empty {
+                  <li class="list-item muted small">
+                    {{
+                      payees().length
+                        ? 'Ningún beneficiario coincide.'
+                        : 'Aún no tienes beneficiarios guardados.'
+                    }}
+                  </li>
+                }
+              </ul>
+            </div>
+
+            <form
+              class="block new-recipient"
+              [formGroup]="newRecipient"
+              (ngSubmit)="useNewRecipient()"
+            >
+              <h3 class="label">Nuevo destinatario</h3>
+              <div class="field">
+                <label for="iban">IBAN</label>
+                <input
+                  id="iban"
+                  class="input num"
+                  formControlName="iban"
+                  placeholder="ES00 0000 0000 0000 0000 0000"
+                  autocomplete="off"
+                  spellcheck="false"
+                  [class.invalid]="newRecipient.controls.iban.touched && !ibanLooksValid()"
+                  (blur)="formatIbanInput()"
+                />
+                @if (ibanLooksValid()) {
+                  <div class="iban-status">
+                    @if (ownIban(); as own) {
+                      <span class="badge brand"
+                        ><app-icon name="wallet" [size]="13" /> Es tu cuenta «{{ own.name }}»</span
+                      >
+                    } @else if (ibanCheck(); as check) {
+                      @if (check.internal) {
+                        <span class="badge ok"
+                          ><app-icon name="bolt" [size]="13" /> Cliente de Hucha · llega al
+                          instante</span
+                        >
+                      } @else {
+                        <span class="badge"
+                          ><app-icon name="bank" [size]="13" /> Otra entidad · SEPA</span
+                        >
+                      }
+                      @if (check.savedPayee) {
+                        <span class="badge">Ya está en tus beneficiarios</span>
+                      }
+                    } @else {
+                      <span class="badge ok"
+                        ><app-icon name="check" [size]="13" /> IBAN válido</span
+                      >
+                    }
+                  </div>
+                } @else if (
+                  newRecipient.controls.iban.touched && newRecipient.controls.iban.value
+                ) {
+                  <span class="error-text"
+                    >Ese IBAN no es válido. Revisa que no falte ningún dígito.</span
+                  >
+                }
+              </div>
+              <div class="field">
+                <label for="name">Nombre del titular</label>
+                <input
+                  id="name"
+                  class="input"
+                  formControlName="name"
+                  placeholder="Nombre y apellidos"
+                  autocomplete="off"
+                />
+                @if (newRecipient.controls.name.touched && newRecipient.controls.name.invalid) {
+                  <span class="error-text">Indica a nombre de quién está la cuenta.</span>
+                }
+              </div>
+              <div class="actions">
+                <button type="submit" class="btn btn-primary">
+                  Continuar <app-icon name="send" [size]="16" />
+                </button>
+              </div>
+            </form>
+          }
+        }
+
+        <!-- ============ 2. Importe ============ -->
+        @case ('amount') {
+          <form [formGroup]="details" (ngSubmit)="review()" class="stack-lg">
+            <h2>¿Cuánto quieres enviar?</h2>
+
+            <div class="field">
+              <label for="from">Desde</label>
+              <select id="from" class="input" formControlName="fromAccountId">
+                @for (account of activeAccounts(); track account.id) {
+                  <option [value]="account.id" [disabled]="account.iban === recipient()?.iban">
+                    {{ account.name }} · {{ account.balance | money }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <div class="field amount-field">
+              <label for="amount" class="visually-hidden">Importe</label>
+              <div class="amount-wrap">
+                <input
+                  id="amount"
+                  class="input input-amount"
+                  formControlName="amount"
+                  inputmode="decimal"
+                  placeholder="0,00"
+                  autocomplete="off"
+                  [class.invalid]="!!amountError()"
+                />
+                <span class="currency">€</span>
+              </div>
+              <div class="chips center">
+                @for (value of quickAmounts; track value) {
+                  <button type="button" class="chip" (click)="setQuickAmount(value)">
+                    {{ value }} €
+                  </button>
+                }
+              </div>
+              @if (amountError(); as message) {
+                <span class="error-text center">{{ message }}</span>
+              } @else if (fromAccount(); as from) {
+                <span class="hint center">Disponible: {{ from.balance | money }}</span>
+              }
+            </div>
+
+            <div class="field">
+              <label for="concept">Concepto <span class="muted">(opcional)</span></label>
+              <input
+                id="concept"
+                class="input"
+                formControlName="concept"
+                maxlength="140"
+                placeholder="Ej.: Cena del viernes"
+              />
+            </div>
+
+            @if (recipient()?.own) {
+              <div class="alert success">
+                <app-icon name="check" [size]="18" /> Entre tus cuentas: al instante y sin código.
+              </div>
+            } @else if (needsSca()) {
+              <div class="alert warning">
+                <app-icon name="shield" [size]="18" />
+                <span
+                  >Por seguridad te pediremos un código de verificación de un solo uso para
+                  confirmar esta transferencia.</span
+                >
+              </div>
+            }
+
+            <div class="actions">
+              <button type="button" class="btn" (click)="back()">Atrás</button>
+              <button type="submit" class="btn btn-primary" [disabled]="!canReview()">
+                Revisar
+              </button>
+            </div>
+          </form>
+        }
+
+        <!-- ============ 3. Revisar ============ -->
+        @case ('review') {
+          <div class="stack-lg">
+            <h2>Revisa la transferencia</h2>
+            @if (recipient(); as r) {
+              <div class="review-amount">
+                <span class="small muted">Vas a enviar</span>
+                <strong class="num">{{ amount() | money }}</strong>
+                <span
+                  >a <b>{{ r.name }}</b></span
+                >
+              </div>
+              <dl class="definition">
+                <dt>Desde</dt>
+                <dd>{{ fromAccount()?.name }}</dd>
+                <dt>IBAN destino</dt>
+                <dd class="num">{{ r.iban | iban }}</dd>
+                @if (details.controls.concept.value) {
+                  <dt>Concepto</dt>
+                  <dd>{{ details.controls.concept.value }}</dd>
+                }
+                <dt>Llegada</dt>
+                <dd>{{ r.internal ? 'Al instante' : 'Transferencia SEPA (simulada)' }}</dd>
+                <dt>Comisión</dt>
+                <dd class="positive">Gratis</dd>
+              </dl>
+              @if (!r.saved && !r.own) {
+                <label class="checkbox">
+                  <input type="checkbox" [formControl]="savePayee" />
+                  Guardar a {{ r.name }} en mis beneficiarios
+                </label>
+              }
+            }
+
+            @if (error(); as e) {
+              <div class="alert error" role="alert">
+                <app-icon name="alert" [size]="18" /> {{ e.message }}
+              </div>
+            }
+
+            <div class="actions">
+              <button type="button" class="btn" (click)="back()" [disabled]="sending()">
+                Atrás
+              </button>
+              <button type="button" class="btn btn-primary" (click)="send()" [disabled]="sending()">
+                @if (sending()) {
+                  <span class="spinner"></span>
+                } @else {
+                  <app-icon name="send" [size]="16" />
+                }
+                {{ error()?.status === 0 ? 'Reintentar' : 'Enviar' }} {{ amount() | money }}
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ============ 4. Verificación (SCA) ============ -->
+        @case ('sca') {
+          <div class="stack-lg sca">
+            <span class="sca-icon"><app-icon name="shield" [size]="28" /></span>
+            <h2>Introduce el código de verificación</h2>
+            <p class="muted">
+              Te lo hemos enviado a tus avisos (la campana de arriba). En un banco real llegaría por
+              SMS o a la app del móvil.
+            </p>
+            <input
+              #codeInput
+              class="input code-input num"
+              [formControl]="code"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="6"
+              placeholder="······"
+              aria-label="Código de 6 dígitos"
+              (input)="onCodeInput()"
+            />
+            <div class="countdown" [class.urgent]="secondsLeft() < 60">
+              @if (secondsLeft() > 0) {
+                <app-icon name="clock" [size]="15" /> Caduca en
+                <span class="num">{{ countdown() }}</span>
+              } @else {
+                El código ha caducado.
+              }
+            </div>
+
+            @if (error(); as e) {
+              <div class="alert error" role="alert">
+                <app-icon name="alert" [size]="18" /> {{ e.message }}
+              </div>
+            }
+
+            <div class="actions center">
+              <button type="button" class="btn" (click)="cancel()" [disabled]="sending()">
+                Cancelar transferencia
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                (click)="confirm()"
+                [disabled]="sending() || code.invalid || secondsLeft() === 0"
+              >
+                @if (sending()) {
+                  <span class="spinner"></span>
+                }
+                Confirmar
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ============ Resultado ============ -->
+        @case ('done') {
+          @if (transfer(); as t) {
+            <div class="receipt">
+              @if (t.status === 'COMPLETED') {
+                <span class="result ok"><app-icon name="check" [size]="34" [stroke]="2.4" /></span>
+                <h2>¡Enviada!</h2>
+                <strong class="receipt-amount num">{{ t.amount | money }}</strong>
+                <p class="muted">
+                  {{ t.internal ? 'Ya está en la cuenta de' : 'Hemos enviado el dinero a' }}
+                  <b>{{ t.beneficiaryName }}</b
+                  >.
+                </p>
+              } @else if (t.status === 'CANCELLED') {
+                <span class="result neutral"><app-icon name="x" [size]="34" [stroke]="2.4" /></span>
+                <h2>Transferencia cancelada</h2>
+                <p class="muted">No se ha movido dinero de tu cuenta.</p>
+              } @else {
+                <span class="result bad"><app-icon name="alert" [size]="34" [stroke]="2.2" /></span>
+                <h2>No se ha podido completar</h2>
+                <p class="muted">
+                  {{
+                    error()?.message ??
+                      'La transferencia ha sido rechazada. No se ha movido dinero.'
+                  }}
+                </p>
+              }
+
+              <dl class="definition receipt-details">
+                <dt>Beneficiario</dt>
+                <dd>{{ t.beneficiaryName }}</dd>
+                <dt>IBAN</dt>
+                <dd class="num">{{ t.toIban | iban }}</dd>
+                @if (t.concept) {
+                  <dt>Concepto</dt>
+                  <dd>{{ t.concept }}</dd>
+                }
+                <dt>Referencia</dt>
+                <dd class="num">{{ t.id.slice(0, 8).toUpperCase() }}</dd>
+              </dl>
+
+              @if (payeeSaved()) {
+                <div class="alert success">
+                  <app-icon name="users" [size]="18" /> Guardado en tus beneficiarios.
+                </div>
+              }
+
+              <div class="actions center">
+                <button type="button" class="btn" (click)="restart()">Hacer otra</button>
+                <a [routerLink]="['/cuentas', t.fromAccountId]" class="btn btn-primary"
+                  >Ver movimientos</a
+                >
+              </div>
+            </div>
+          }
+        }
+      }
+    </section>
+
+    @if (step() !== 'done') {
+      <aside class="side">
+        <section class="card summary">
+          <h3 class="label">Resumen</h3>
+          @if (recipient(); as r) {
+            <div class="row">
+              <span class="avatar" [class.brand]="r.internal">{{ initials(r.name) }}</span>
+              <div class="grow">
+                <div class="strong truncate">{{ r.name }}</div>
+                <div class="small muted num">{{ shortIban(r.iban) }}</div>
+              </div>
+              @if (step() === 'amount' || step() === 'review') {
+                <button type="button" class="btn btn-ghost btn-sm" (click)="step.set('recipient')">
+                  Cambiar
+                </button>
+              }
+            </div>
+          } @else {
+            <p class="small muted">Elige un destinatario para empezar.</p>
+          }
+          @if (amount() && step() !== 'recipient') {
+            <div class="summary-amount num">{{ amount() | money }}</div>
+          }
+        </section>
+        <section class="card tips">
+          <h3 class="label"><app-icon name="lock" [size]="15" /> Consejos de seguridad</h3>
+          <ul>
+            <li>Nunca te pediremos el código por teléfono ni por email.</li>
+            <li>Si alguien te mete prisa para transferir, desconfía.</li>
+            <li>Comprueba el IBAN antes de enviar a alguien nuevo.</li>
+          </ul>
+        </section>
+      </aside>
+    }
+  </div>
+</div>

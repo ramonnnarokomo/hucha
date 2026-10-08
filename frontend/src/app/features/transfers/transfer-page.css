@@ -1,0 +1,395 @@
+/* ---------- Pasos ---------- */
+
+.stepper {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stepper li {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.stepper li:not(:last-child)::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--border);
+}
+
+.stepper li.complete::after {
+  background: var(--brand);
+}
+
+.dot {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  font-size: 0.8rem;
+}
+
+.stepper li.active {
+  color: var(--text);
+}
+
+.stepper li.active .dot {
+  border-color: var(--brand);
+  color: var(--brand-text);
+  box-shadow: 0 0 0 4px var(--brand-soft);
+}
+
+.stepper li.complete .dot {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+}
+
+/* ---------- Estructura ---------- */
+
+.layout {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  align-items: start;
+}
+
+.layout.single {
+  grid-template-columns: minmax(0, 560px);
+  justify-content: center;
+}
+
+.main {
+  display: grid;
+  gap: 22px;
+  padding: 28px;
+}
+
+.side {
+  display: grid;
+  gap: 16px;
+  position: sticky;
+  top: 88px;
+}
+
+.block {
+  display: grid;
+  gap: 10px;
+}
+
+.stack-lg {
+  display: grid;
+  gap: 20px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.center {
+  justify-content: center;
+  text-align: center;
+}
+
+.strong {
+  display: block;
+  font-weight: 600;
+}
+
+.grow .small {
+  display: block;
+}
+
+/* ---------- Paso 1 ---------- */
+
+.own-accounts {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+}
+
+.own {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.own:hover {
+  border-color: var(--brand);
+  background: var(--surface-hover);
+}
+
+.own > span {
+  max-width: 100%;
+}
+
+.own-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 4px;
+  border-radius: 10px;
+  background: var(--brand-soft);
+  color: var(--brand-text);
+}
+
+.own-icon.pot {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.list.bordered {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.list.bordered .list-item {
+  padding: 10px 14px;
+}
+
+.new-recipient {
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.iban-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ---------- Paso 2 ---------- */
+
+.amount-field {
+  gap: 12px;
+}
+
+.amount-wrap {
+  position: relative;
+}
+
+.amount-wrap .input-amount {
+  min-height: 76px;
+  padding-right: 48px;
+  padding-left: 48px;
+  font-size: 2.4rem;
+  letter-spacing: -0.02em;
+}
+
+.currency {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.chips.center {
+  justify-content: center;
+}
+
+/* ---------- Paso 3 ---------- */
+
+.review-amount {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 20px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  text-align: center;
+}
+
+.review-amount strong {
+  font-size: 2.2rem;
+  letter-spacing: -0.03em;
+}
+
+/* ---------- Paso 4 (SCA) ---------- */
+
+.sca {
+  justify-items: center;
+  text-align: center;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.sca-icon {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: var(--brand-soft);
+  color: var(--brand-text);
+}
+
+.code-input {
+  max-width: 280px;
+  min-height: 64px;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  text-align: center;
+  padding-left: calc(14px + 0.5em);
+}
+
+.countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.countdown.urgent {
+  color: var(--negative);
+}
+
+/* ---------- Resultado ---------- */
+
+.receipt {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  text-align: center;
+}
+
+.result {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin-bottom: 4px;
+  animation: pop 0.35s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.result.ok {
+  background: var(--positive-soft);
+  color: var(--positive);
+}
+
+.result.bad {
+  background: var(--negative-soft);
+  color: var(--negative);
+}
+
+.result.neutral {
+  background: var(--surface-hover);
+  color: var(--muted);
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+
+.receipt-amount {
+  font-size: 2.4rem;
+  letter-spacing: -0.03em;
+}
+
+.receipt-details {
+  width: 100%;
+  margin: 8px 0;
+  padding: 16px 0;
+  border-top: 1px dashed var(--border-strong);
+  border-bottom: 1px dashed var(--border-strong);
+  text-align: left;
+}
+
+/* ---------- Lateral ---------- */
+
+.summary {
+  display: grid;
+  gap: 12px;
+}
+
+.avatar.brand {
+  background: var(--brand-soft);
+  color: var(--brand-text);
+}
+
+.summary-amount {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.tips h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.tips ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    position: static;
+  }
+
+  .tips {
+    display: none;
+  }
+
+  .main {
+    padding: 20px;
+  }
+
+  .step-label {
+    display: none;
+  }
+
+  .stepper li.active .step-label {
+    display: inline;
+  }
+}

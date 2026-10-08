@@ -1,0 +1,167 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Beneficiarios</h1>
+      <p>
+        Las personas a las que envías dinero a menudo. Enviarles importes pequeños no pide código.
+      </p>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="openCreate()">
+      <app-icon name="plus" [size]="18" /> Añadir
+    </button>
+  </div>
+
+  <section class="card flush">
+    <div class="toolbar">
+      <label class="search">
+        <app-icon name="search" [size]="18" />
+        <span class="visually-hidden">Buscar beneficiario</span>
+        <input
+          class="input"
+          type="search"
+          placeholder="Buscar por nombre, alias o IBAN"
+          [value]="filter()"
+          (input)="filter.set($any($event.target).value)"
+        />
+      </label>
+      <span class="small muted"
+        >{{ payees().length }} {{ payees().length === 1 ? 'beneficiario' : 'beneficiarios' }}</span
+      >
+    </div>
+
+    @if (loading()) {
+      <div class="stack padded" style="padding-bottom: 20px">
+        @for (i of [1, 2, 3]; track i) {
+          <span class="skeleton" style="height: 52px"></span>
+        }
+      </div>
+    } @else {
+      <ul class="list">
+        @for (p of filtered(); track p.id) {
+          <li class="list-item">
+            <span class="avatar" [class.brand]="p.internal">{{ initials(p.name) }}</span>
+            <div class="grow">
+              <div class="row name-row">
+                <strong class="truncate">{{ p.alias || p.name }}</strong>
+                @if (p.internal) {
+                  <span class="badge brand">Hucha</span>
+                }
+              </div>
+              <div class="small muted truncate">
+                @if (p.alias) {
+                  {{ p.name }} ·
+                }
+                <span class="num">{{ p.iban | iban }}</span>
+              </div>
+            </div>
+            <div class="row actions">
+              <a [routerLink]="['/transferir']" [queryParams]="{ payee: p.id }" class="btn btn-sm">
+                <app-icon name="send" [size]="15" /> <span class="hide-sm">Enviar</span>
+              </a>
+              <button
+                type="button"
+                class="btn btn-ghost btn-icon btn-sm"
+                aria-label="Editar"
+                title="Editar"
+                (click)="openEdit(p)"
+              >
+                <app-icon name="edit" [size]="17" />
+              </button>
+              <button
+                type="button"
+                class="btn btn-ghost btn-icon btn-sm danger"
+                aria-label="Eliminar"
+                title="Eliminar"
+                (click)="toDelete.set(p)"
+              >
+                <app-icon name="trash" [size]="17" />
+              </button>
+            </div>
+          </li>
+        } @empty {
+          <li class="empty">
+            <app-icon name="users" [size]="28" />
+            @if (filter()) {
+              <span>Nadie coincide con «{{ filter() }}».</span>
+            } @else {
+              <span
+                >Aún no tienes beneficiarios. Se guardan solos al transferir, o puedes añadirlos
+                aquí.</span
+              >
+            }
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>
+
+<app-modal
+  [title]="editing() ? 'Editar beneficiario' : 'Nuevo beneficiario'"
+  [open]="formOpen()"
+  (closed)="closeForm()"
+>
+  <form class="stack" [formGroup]="form" (ngSubmit)="save()">
+    @if (!editing()) {
+      <div class="field">
+        <label for="payee-iban">IBAN</label>
+        <input
+          id="payee-iban"
+          class="input num"
+          formControlName="iban"
+          placeholder="ES00 0000 0000 0000 0000 0000"
+          autocomplete="off"
+          spellcheck="false"
+          [class.invalid]="form.controls.iban.touched && !ibanValid()"
+        />
+        @if (form.controls.iban.touched && !ibanValid()) {
+          <span class="error-text">Ese IBAN no es válido.</span>
+        } @else if (ibanValid()) {
+          <span class="hint positive"><app-icon name="check" [size]="13" /> IBAN válido</span>
+        }
+      </div>
+    }
+    <div class="field">
+      <label for="payee-name">Nombre del titular</label>
+      <input id="payee-name" class="input" formControlName="name" autocomplete="off" />
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+        <span class="error-text">El nombre es obligatorio.</span>
+      }
+    </div>
+    <div class="field">
+      <label for="payee-alias">Alias <span class="muted">(opcional)</span></label>
+      <input
+        id="payee-alias"
+        class="input"
+        formControlName="alias"
+        placeholder="Ej.: Casero, Mamá, Gimnasio"
+        maxlength="60"
+      />
+    </div>
+    @if (formError()) {
+      <div class="alert error" role="alert">{{ formError() }}</div>
+    }
+    <div class="modal-actions">
+      <button type="button" class="btn" (click)="closeForm()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">
+        @if (saving()) {
+          <span class="spinner"></span>
+        }
+        Guardar
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<app-modal title="Eliminar beneficiario" [open]="toDelete() !== null" (closed)="toDelete.set(null)">
+  @if (toDelete(); as p) {
+    <p>
+      ¿Seguro que quieres eliminar a <b>{{ p.alias || p.name }}</b
+      >? Las transferencias que ya le hiciste no cambian.
+    </p>
+    <div class="modal-actions">
+      <button type="button" class="btn" (click)="toDelete.set(null)">Cancelar</button>
+      <button type="button" class="btn btn-danger" (click)="remove(p)">Eliminar</button>
+    </div>
+  }
+</app-modal>

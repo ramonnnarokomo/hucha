@@ -1,0 +1,254 @@
+<div class="page">
+  @if (notFound()) {
+    <div class="card empty">
+      <app-icon name="alert" [size]="28" />
+      <strong>No encontramos esta cuenta</strong>
+      <span>Puede que no exista o que no sea tuya.</span>
+      <a routerLink="/" class="btn btn-sm">Volver al inicio</a>
+    </div>
+  } @else {
+    <div class="page-header">
+      <div>
+        <a routerLink="/" class="back small"><app-icon name="home" [size]="15" /> Inicio</a>
+        <h1>{{ account()?.name ?? 'Cuenta' }}</h1>
+        @if (account(); as a) {
+          <p class="iban-line">
+            <span class="num">{{ a.iban | iban }}</span>
+            <app-copy-button [value]="a.iban" label="Copiar IBAN" />
+          </p>
+        }
+      </div>
+      <div class="row wrap">
+        <a routerLink="/transferir" class="btn btn-primary"
+          ><app-icon name="send" [size]="18" /> Transferir</a
+        >
+      </div>
+    </div>
+
+    <div class="top-grid">
+      <section class="card balance-card" aria-label="Saldo">
+        <span class="small muted">Saldo disponible</span>
+        @if (account(); as a) {
+          <strong class="balance num">{{ a.balance | money }}</strong>
+          <div class="row wrap">
+            @switch (a.status) {
+              @case ('ACTIVE') {
+                <span class="badge ok">Activa</span>
+              }
+              @case ('FROZEN') {
+                <span class="badge bad"><app-icon name="snowflake" [size]="13" /> Congelada</span>
+              }
+              @default {
+                <span class="badge">Cerrada</span>
+              }
+            }
+            <span class="badge">{{ a.type === 'SAVINGS' ? 'Hucha' : 'Cuenta corriente' }}</span>
+          </div>
+          <dl class="definition">
+            @if (a.dailyLimit) {
+              <dt>Límite diario de gasto</dt>
+              <dd class="num">{{ a.dailyLimit | money }}</dd>
+            }
+            @if (a.goalAmount) {
+              <dt>Objetivo</dt>
+              <dd class="num">{{ a.goalAmount | money }}</dd>
+            }
+            <dt>Abierta el</dt>
+            <dd>{{ a.createdAt | shortDate }}</dd>
+          </dl>
+        } @else {
+          <span class="skeleton" style="height: 44px; width: 60%"></span>
+        }
+      </section>
+
+      <section class="card statement" aria-labelledby="statement-title">
+        <div>
+          <h2 id="statement-title">Extracto mensual</h2>
+          <p class="small muted">Todos los movimientos del mes con saldo inicial y final.</p>
+        </div>
+        <div class="field">
+          <label for="statement-month">Mes</label>
+          <select
+            id="statement-month"
+            class="input"
+            [value]="month()"
+            (change)="month.set(value($event))"
+          >
+            @for (m of months; track m) {
+              <option [value]="m">{{ monthLong(m) }}</option>
+            }
+          </select>
+        </div>
+        <div class="row">
+          <button
+            type="button"
+            class="btn grow-btn"
+            (click)="download('pdf')"
+            [disabled]="downloading() !== null"
+          >
+            @if (downloading() === 'pdf') {
+              <span class="spinner"></span>
+            } @else {
+              <app-icon name="download" [size]="17" />
+            }
+            PDF
+          </button>
+          <button
+            type="button"
+            class="btn grow-btn"
+            (click)="download('csv')"
+            [disabled]="downloading() !== null"
+          >
+            @if (downloading() === 'csv') {
+              <span class="spinner"></span>
+            } @else {
+              <app-icon name="download" [size]="17" />
+            }
+            CSV
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <section class="card flush" aria-labelledby="movements-title">
+      <div class="filters">
+        <div class="row between wrap">
+          <h2 id="movements-title">Movimientos</h2>
+          <div class="segmented" role="group" aria-label="Dirección">
+            <button
+              type="button"
+              [attr.aria-pressed]="direction() === null"
+              (click)="direction.set(null)"
+            >
+              Todos
+            </button>
+            <button
+              type="button"
+              [attr.aria-pressed]="direction() === 'IN'"
+              (click)="direction.set('IN')"
+            >
+              Entradas
+            </button>
+            <button
+              type="button"
+              [attr.aria-pressed]="direction() === 'OUT'"
+              (click)="direction.set('OUT')"
+            >
+              Salidas
+            </button>
+          </div>
+        </div>
+        <div class="filter-grid">
+          <label class="search">
+            <app-icon name="search" [size]="18" />
+            <span class="visually-hidden">Buscar</span>
+            <input
+              class="input"
+              type="search"
+              placeholder="Buscar por concepto, comercio o persona"
+              [value]="q()"
+              (input)="q.set(value($event))"
+            />
+          </label>
+          <select
+            class="input"
+            aria-label="Categoría"
+            [value]="category()"
+            (change)="category.set($any(value($event)))"
+          >
+            <option value="">Todas las categorías</option>
+            @for (c of categories; track c[0]) {
+              <option [value]="c[0]">{{ c[1].label }}</option>
+            }
+          </select>
+          <input
+            class="input"
+            type="date"
+            aria-label="Desde"
+            [value]="from()"
+            [max]="to() || null"
+            (change)="from.set(value($event))"
+          />
+          <input
+            class="input"
+            type="date"
+            aria-label="Hasta"
+            [value]="to()"
+            [min]="from() || null"
+            (change)="to.set(value($event))"
+          />
+        </div>
+        @if (hasFilters()) {
+          <div class="row between small">
+            <span class="muted"
+              >{{ totalItems() }} {{ totalItems() === 1 ? 'resultado' : 'resultados' }}</span
+            >
+            <button type="button" class="btn btn-ghost btn-sm" (click)="clearFilters()">
+              <app-icon name="x" [size]="15" /> Quitar filtros
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (loading() && movements().length === 0) {
+        <div class="stack padded" style="padding-bottom: 20px">
+          @for (i of [1, 2, 3, 4, 5]; track i) {
+            <span class="skeleton" style="height: 44px"></span>
+          }
+        </div>
+      } @else {
+        <div [class.dimmed]="loading()">
+          @for (group of groups(); track group.day) {
+            <h3 class="day">{{ group.day }}</h3>
+            <ul class="list">
+              @for (movement of group.items; track movement.id) {
+                <li>
+                  <button type="button" class="list-item" (click)="selected.set(movement)">
+                    <app-movement-row [movement]="movement" [showBalance]="true" class="grow" />
+                  </button>
+                </li>
+              }
+            </ul>
+          } @empty {
+            <div class="empty">
+              <app-icon [name]="hasFilters() ? 'filter' : 'activity'" [size]="28" />
+              <span>{{
+                hasFilters()
+                  ? 'Ningún movimiento coincide con los filtros.'
+                  : 'Aún no hay movimientos en esta cuenta.'
+              }}</span>
+            </div>
+          }
+        </div>
+        @if (movements().length > 0) {
+          <div class="pager">
+            <span>Mostrando {{ movements().length }} de {{ totalItems() }}</span>
+            @if (page() + 1 < totalPages()) {
+              <button
+                type="button"
+                class="btn btn-sm"
+                (click)="loadMore()"
+                [disabled]="loadingMore()"
+              >
+                @if (loadingMore()) {
+                  <span class="spinner"></span>
+                }
+                Cargar más
+              </button>
+            }
+          </div>
+        }
+      }
+    </section>
+  }
+</div>
+
+<app-modal
+  title="Detalle del movimiento"
+  [open]="selected() !== null"
+  (closed)="selected.set(null)"
+>
+  @if (selected(); as movement) {
+    <app-movement-detail [movement]="movement" />
+  }
+</app-modal>

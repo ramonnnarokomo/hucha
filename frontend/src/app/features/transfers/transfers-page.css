@@ -1,0 +1,46 @@
+.list-item .grow > span {
+  display: block;
+}
+
+.title {
+  font-weight: 600;
+}
+
+.sub {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.right {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+}
+
+.amount {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.amount.struck {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.avatar.brand {
+  background: var(--brand-soft);
+  color: var(--brand-text);
+}
+
+.detail-head {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.detail-head strong {
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+}
