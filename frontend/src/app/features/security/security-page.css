@@ -1,0 +1,111 @@
+.grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  grid-column: 1 / -1;
+}
+
+.big-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.strength {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.strength span {
+  height: 4px;
+  border-radius: 4px;
+  background: var(--border);
+  transition: background 0.2s;
+}
+
+.strength[data-level='1'] span.on {
+  background: var(--negative);
+}
+
+.strength[data-level='2'] span.on {
+  background: var(--warning);
+}
+
+.strength[data-level='3'] span.on,
+.strength[data-level='4'] span.on {
+  background: var(--positive);
+}
+
+.row.end {
+  justify-content: flex-end;
+}
+
+.sessions {
+  grid-row: span 2;
+}
+
+.device-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--surface-hover);
+  color: var(--text-2);
+}
+
+.device-icon.current {
+  background: var(--positive-soft);
+  color: var(--positive);
+}
+
+.tips h2 {
+  margin-bottom: 12px;
+}
+
+.tips ul {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+  color: var(--text-2);
+}
+
+.tips li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.tips app-icon {
+  color: var(--brand-text);
+  margin-top: 1px;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sessions {
+    grid-row: auto;
+  }
+}

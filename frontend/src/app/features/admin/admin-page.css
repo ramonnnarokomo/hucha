@@ -1,0 +1,92 @@
+.overview-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.health {
+  display: grid;
+  gap: 16px;
+}
+
+.health code {
+  font-size: 0.8rem;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--surface-hover);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.search {
+  position: relative;
+  display: block;
+  flex: 1;
+  max-width: 420px;
+}
+
+.search app-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.search .input {
+  padding-left: 42px;
+}
+
+.action-select {
+  max-width: 320px;
+}
+
+.cell-text {
+  display: grid;
+  min-width: 0;
+  max-width: 280px;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.details {
+  max-width: 360px;
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+}
+
+.table .empty {
+  display: table-cell;
+}
+
+.list.bordered {
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.list.bordered .list-item {
+  padding: 10px 14px;
+}
+
+.block {
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+}

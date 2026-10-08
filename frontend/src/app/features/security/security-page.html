@@ -1,0 +1,155 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Seguridad</h1>
+      <p>Tu perfil, tu contraseña y los dispositivos con la sesión abierta.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card profile">
+      <span class="big-avatar">{{ initials() }}</span>
+      <div class="grow">
+        <h2>{{ auth.user()?.fullName }}</h2>
+        <p class="muted">{{ auth.user()?.email }}</p>
+      </div>
+      <span class="badge" [class.brand]="auth.isAdmin()">{{
+        auth.isAdmin() ? 'Administrador' : 'Cliente'
+      }}</span>
+    </section>
+
+    <section class="card" aria-labelledby="password-title">
+      <div class="card-header">
+        <div>
+          <h2 id="password-title">Cambiar contraseña</h2>
+          <p>Al cambiarla se cierran tus sesiones en otros dispositivos.</p>
+        </div>
+      </div>
+      <form class="stack" [formGroup]="form" (ngSubmit)="changePassword()">
+        <div class="field">
+          <label for="current">Contraseña actual</label>
+          <input
+            id="current"
+            class="input"
+            type="password"
+            formControlName="current"
+            autocomplete="current-password"
+          />
+        </div>
+        <div class="field">
+          <label for="next">Nueva contraseña</label>
+          <input
+            id="next"
+            class="input"
+            type="password"
+            formControlName="next"
+            autocomplete="new-password"
+            aria-describedby="strength-text"
+            [class.invalid]="form.controls.next.touched && form.controls.next.invalid"
+          />
+          <div class="strength" [attr.data-level]="strength().level" aria-hidden="true">
+            @for (i of [1, 2, 3, 4]; track i) {
+              <span [class.on]="strength().level >= i"></span>
+            }
+          </div>
+          <span id="strength-text" class="hint">{{ strength().text }}</span>
+        </div>
+        <div class="field">
+          <label for="repeat">Repite la nueva contraseña</label>
+          <input
+            id="repeat"
+            class="input"
+            type="password"
+            formControlName="repeat"
+            autocomplete="new-password"
+            [class.invalid]="form.controls.repeat.touched && mismatch()"
+          />
+          @if (form.controls.repeat.touched && mismatch()) {
+            <span class="error-text">No coincide con la nueva contraseña.</span>
+          }
+        </div>
+        @if (passwordError(); as message) {
+          <div class="alert error" role="alert">
+            <app-icon name="alert" [size]="18" /> {{ message }}
+          </div>
+        }
+        <div class="row end">
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) {
+              <span class="spinner"></span>
+            }
+            Cambiar contraseña
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card flush sessions" aria-labelledby="sessions-title">
+      <div class="card-header padded">
+        <div>
+          <h2 id="sessions-title">Sesiones abiertas</h2>
+          <p>Si no reconoces alguna, ciérrala y cambia la contraseña.</p>
+        </div>
+        @if (sessions().length > 1) {
+          <button type="button" class="btn btn-sm btn-danger" (click)="revokeOthers()">
+            Cerrar las demás
+          </button>
+        }
+      </div>
+      <ul class="list">
+        @for (s of sessions(); track s.id) {
+          <li class="list-item">
+            <span class="device-icon" [class.current]="s.current">
+              <app-icon [name]="device(s).mobile ? 'phone' : 'monitor'" [size]="20" />
+            </span>
+            <div class="grow">
+              <div class="row">
+                <strong>{{ device(s).label }}</strong>
+                @if (s.current) {
+                  <span class="badge ok">Este dispositivo</span>
+                }
+              </div>
+              <div class="small muted">
+                {{ s.ipAddress ?? 'IP desconocida' }} · Inició sesión
+                {{ s.startedAt | shortDate }} · Activa {{ s.lastUsedAt | timeAgo }}
+              </div>
+            </div>
+            @if (!s.current) {
+              <button type="button" class="btn btn-ghost btn-sm" (click)="revoke(s)">Cerrar</button>
+            }
+          </li>
+        } @empty {
+          <li class="list-item muted small">Cargando sesiones...</li>
+        }
+      </ul>
+    </section>
+
+    <section class="card tips">
+      <h2>Cómo protege Hucha tu cuenta</h2>
+      <ul>
+        <li>
+          <app-icon name="lock" [size]="18" />
+          <span><b>Contraseñas con BCrypt.</b> Nunca se guardan en claro.</span>
+        </li>
+        <li>
+          <app-icon name="shield" [size]="18" />
+          <span
+            ><b>Código de un solo uso</b> para transferencias grandes o a destinatarios
+            nuevos.</span
+          >
+        </li>
+        <li>
+          <app-icon name="refresh" [size]="18" />
+          <span
+            ><b>Sesiones que rotan.</b> Si alguien reutiliza una sesión robada, se cierran
+            todas.</span
+          >
+        </li>
+        <li>
+          <app-icon name="alert" [size]="18" />
+          <span><b>Bloqueo temporal</b> tras 5 intentos fallidos de entrar.</span>
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>

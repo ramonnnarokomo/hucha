@@ -1,0 +1,305 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Back-office</h1>
+      <p>Operaciones del banco, clientes y registro de auditoría.</p>
+    </div>
+    <div class="segmented" role="tablist" aria-label="Secciones">
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="tab() === 'overview'"
+        (click)="tab.set('overview')"
+      >
+        Resumen
+      </button>
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="tab() === 'users'"
+        (click)="tab.set('users')"
+      >
+        Clientes
+      </button>
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="tab() === 'audit'"
+        (click)="tab.set('audit')"
+      >
+        Auditoría
+      </button>
+    </div>
+  </div>
+
+  @switch (tab()) {
+    @case ('overview') {
+      @if (overview(); as o) {
+        <div class="kpis">
+          <div class="kpi">
+            <span>Clientes</span>
+            <strong>{{ o.customers }}</strong>
+            <small>{{ o.accounts }} cuentas abiertas</small>
+          </div>
+          <div class="kpi">
+            <span>Depósitos de clientes</span>
+            <strong>{{ o.customerDeposits | money }}</strong>
+            <small>suma de saldos (cuentas y huchas)</small>
+          </div>
+          <div class="kpi">
+            <span>Transferencias hoy</span>
+            <strong>{{ o.transfersToday }}</strong>
+            <small>{{ o.transferVolumeToday | money }} movidos</small>
+          </div>
+          <div class="kpi">
+            <span>Pagos con tarjeta hoy</span>
+            <strong>{{ o.cardApprovalsToday }}</strong>
+            <small [class.negative]="o.cardDeclinesToday > 0"
+              >{{ o.cardDeclinesToday }} denegados</small
+            >
+          </div>
+        </div>
+
+        <div class="overview-grid">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h2>Volumen de transferencias</h2>
+                <p>Últimos 7 días</p>
+              </div>
+            </div>
+            <app-bar-chart
+              [data]="volumeBars()"
+              [seriesLabels]="['Volumen']"
+              [colors]="['var(--brand)']"
+              ariaLabel="Volumen de transferencias por día"
+            />
+          </section>
+          <section class="card health">
+            <h2>Estado del sistema</h2>
+            <dl class="definition">
+              <dt>Eventos pendientes en el outbox</dt>
+              <dd>
+                <span
+                  class="badge"
+                  [class.ok]="o.pendingOutboxEvents === 0"
+                  [class.warn]="o.pendingOutboxEvents > 0"
+                >
+                  {{ o.pendingOutboxEvents }}
+                </span>
+              </dd>
+              <dt>Conexiones en tiempo real (SSE)</dt>
+              <dd>{{ o.liveConnections }}</dd>
+              <dt>API</dt>
+              <dd><span class="badge ok">Operativa</span></dd>
+            </dl>
+            <p class="small muted">
+              Métricas detalladas en <code>/actuator/prometheus</code> y la API documentada en
+              <a href="/swagger-ui.html" target="_blank" rel="noopener">Swagger UI</a>.
+            </p>
+          </section>
+        </div>
+      } @else {
+        <div class="kpis">
+          @for (i of [1, 2, 3, 4]; track i) {
+            <span class="skeleton" style="height: 98px; border-radius: var(--radius)"></span>
+          }
+        </div>
+      }
+    }
+
+    @case ('users') {
+      <section class="card flush">
+        <div class="toolbar">
+          <label class="search">
+            <app-icon name="search" [size]="18" />
+            <span class="visually-hidden">Buscar cliente</span>
+            <input
+              class="input"
+              type="search"
+              placeholder="Buscar por nombre o email"
+              [value]="userQuery()"
+              (input)="userQuery.set($any($event.target).value)"
+            />
+          </label>
+          <span class="small muted">{{ usersTotal() }} usuarios</span>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Estado</th>
+                <th class="right">Saldo total</th>
+                <th>Alta</th>
+                <th><span class="visually-hidden">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of users(); track u.id) {
+                <tr>
+                  <td>
+                    <div class="row">
+                      <span class="avatar">{{ initials(u.fullName) }}</span>
+                      <div class="cell-text">
+                        <strong class="truncate">{{ u.fullName }}</strong>
+                        <span class="small muted truncate">{{ u.email }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    @if (u.role === 'ADMIN') {
+                      <span class="badge brand">Admin</span>
+                    } @else {
+                      <span
+                        class="badge"
+                        [class.ok]="u.status === 'ACTIVE'"
+                        [class.bad]="u.status === 'BLOCKED'"
+                      >
+                        {{ u.status === 'ACTIVE' ? 'Activo' : 'Bloqueado' }}
+                      </span>
+                    }
+                  </td>
+                  <td class="right num">{{ u.totalBalance | money }}</td>
+                  <td class="nowrap">{{ u.createdAt | shortDate }}</td>
+                  <td class="right">
+                    <button type="button" class="btn btn-sm" (click)="openUser(u)">Ver</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="empty">No hay usuarios que coincidan.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (usersPage() + 1 < usersPages()) {
+          <div class="pager">
+            <span>{{ users().length }} de {{ usersTotal() }}</span>
+            <button type="button" class="btn btn-sm" (click)="moreUsers()">Cargar más</button>
+          </div>
+        }
+      </section>
+    }
+
+    @case ('audit') {
+      <section class="card flush">
+        <div class="toolbar">
+          <select
+            class="input action-select"
+            aria-label="Filtrar por acción"
+            [value]="auditAction()"
+            (change)="auditAction.set($any($event.target).value)"
+          >
+            <option value="">Todas las acciones</option>
+            @for (a of auditActions; track a[0]) {
+              <option [value]="a[0]">{{ a[1] }}</option>
+            }
+          </select>
+          <span class="small muted">{{ auditTotal() }} eventos</span>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Acción</th>
+                <th>Quién</th>
+                <th>Detalle</th>
+                <th>IP</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of audit(); track e.id) {
+                <tr>
+                  <td class="nowrap small">
+                    {{ e.occurredAt | shortDate }} {{ e.occurredAt | time }}
+                  </td>
+                  <td>
+                    <span class="badge" [class]="'badge ' + actionTone(e.action)">{{
+                      actionLabel(e.action)
+                    }}</span>
+                  </td>
+                  <td class="small">{{ e.actorEmail ?? 'sistema' }}</td>
+                  <td class="small details">{{ detailText(e) }}</td>
+                  <td class="small muted nowrap">{{ e.ipAddress ?? '—' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="empty">Sin eventos.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (auditPage() + 1 < auditPages()) {
+          <div class="pager">
+            <span>{{ audit().length }} de {{ auditTotal() }}</span>
+            <button type="button" class="btn btn-sm" (click)="moreAudit()">Cargar más</button>
+          </div>
+        }
+      </section>
+    }
+  }
+</div>
+
+<app-modal
+  [title]="detail()?.user?.fullName ?? 'Cliente'"
+  [open]="detail() !== null"
+  (closed)="detail.set(null)"
+>
+  @if (detail(); as d) {
+    <dl class="definition">
+      <dt>Email</dt>
+      <dd>{{ d.user.email }}</dd>
+      <dt>Alta</dt>
+      <dd>{{ d.user.createdAt | shortDate }}</dd>
+      <dt>Saldo total</dt>
+      <dd class="num">{{ d.user.totalBalance | money }}</dd>
+    </dl>
+    <div>
+      <h3 class="label">Cuentas</h3>
+      <ul class="list bordered">
+        @for (a of d.accounts; track a.id) {
+          <li class="list-item">
+            <div class="grow">
+              <strong class="truncate block">{{ a.name }}</strong>
+              <span class="small muted num">{{ a.iban | iban }}</span>
+            </div>
+            <span class="num small">{{ a.balance | money }}</span>
+            @if (a.status !== 'CLOSED') {
+              <button
+                type="button"
+                class="btn btn-sm"
+                [class.btn-danger]="a.status === 'ACTIVE'"
+                (click)="toggleFrozen(a)"
+              >
+                <app-icon name="snowflake" [size]="14" />
+                {{ a.status === 'FROZEN' ? 'Descongelar' : 'Congelar' }}
+              </button>
+            }
+          </li>
+        } @empty {
+          <li class="list-item small muted">Sin cuentas.</li>
+        }
+      </ul>
+    </div>
+    @if (d.user.role !== 'ADMIN') {
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn"
+          [class.btn-danger]="d.user.status === 'ACTIVE'"
+          (click)="toggleBlocked(d.user)"
+        >
+          {{ d.user.status === 'ACTIVE' ? 'Bloquear acceso' : 'Desbloquear acceso' }}
+        </button>
+      </div>
+      <p class="small muted">
+        Bloquear cierra todas sus sesiones al momento. Congelar una cuenta impide mover dinero de
+        ella.
+      </p>
+    }
+  }
+</app-modal>

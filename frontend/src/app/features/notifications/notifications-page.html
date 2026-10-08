@@ -1,0 +1,84 @@
+<div class="page narrow">
+  <div class="page-header">
+    <div>
+      <h1>Avisos</h1>
+      <p>
+        Te llegan al momento, sin recargar.
+        <span class="live" [class.on]="service.connected()">
+          <i></i>{{ service.connected() ? 'Conectado en tiempo real' : 'Reconectando...' }}
+        </span>
+      </p>
+    </div>
+    <div class="row wrap">
+      <div class="segmented" role="group" aria-label="Filtro">
+        <button type="button" [attr.aria-pressed]="!onlyUnread()" (click)="onlyUnread.set(false)">
+          Todos
+        </button>
+        <button type="button" [attr.aria-pressed]="onlyUnread()" (click)="onlyUnread.set(true)">
+          Sin leer
+          @if (service.unread() > 0) {
+            ({{ service.unread() }})
+          }
+        </button>
+      </div>
+      <button
+        type="button"
+        class="btn btn-sm"
+        (click)="markAll()"
+        [disabled]="service.unread() === 0"
+      >
+        <app-icon name="check" [size]="15" /> Marcar todo como leído
+      </button>
+    </div>
+  </div>
+
+  <section class="card flush">
+    @if (loading() && items().length === 0) {
+      <div class="stack padded" style="padding-bottom: 20px">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <span class="skeleton" style="height: 60px"></span>
+        }
+      </div>
+    } @else {
+      <ul class="list">
+        @for (n of visible(); track n.id) {
+          <li>
+            <button
+              type="button"
+              class="list-item notification"
+              [class.unread]="!n.read"
+              (click)="open(n)"
+            >
+              <span class="type-icon" [class]="'type-icon ' + look(n).tone"
+                ><app-icon [name]="look(n).icon" [size]="19"
+              /></span>
+              <span class="grow">
+                <span class="row between top">
+                  <strong class="truncate">{{ n.title }}</strong>
+                  <span class="small muted when">{{ n.createdAt | timeAgo }}</span>
+                </span>
+                <span class="body">{{ n.body }}</span>
+              </span>
+              @if (!n.read) {
+                <span class="dot" aria-label="Sin leer"></span>
+              }
+            </button>
+          </li>
+        } @empty {
+          <li class="empty">
+            <app-icon name="bell" [size]="28" />
+            <span>{{ onlyUnread() ? 'Lo tienes todo leído.' : 'No tienes avisos todavía.' }}</span>
+          </li>
+        }
+      </ul>
+      @if (page() + 1 < totalPages()) {
+        <div class="pager">
+          <span>{{ items().length }} de {{ totalItems() }}</span>
+          <button type="button" class="btn btn-sm" (click)="loadMore()" [disabled]="loading()">
+            Cargar más
+          </button>
+        </div>
+      }
+    }
+  </section>
+</div>

@@ -72,6 +72,24 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/analytics/analytics-page').then((m) => m.AnalyticsPage),
       },
+      {
+        path: 'avisos',
+        title: 'Avisos',
+        loadComponent: () =>
+          import('./features/notifications/notifications-page').then((m) => m.NotificationsPage),
+      },
+      {
+        path: 'seguridad',
+        title: 'Seguridad',
+        loadComponent: () =>
+          import('./features/security/security-page').then((m) => m.SecurityPage),
+      },
+      {
+        path: 'admin',
+        title: 'Back-office',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/admin-page').then((m) => m.AdminPage),
+      },
     ],
   },
   { path: '**', redirectTo: '' },
