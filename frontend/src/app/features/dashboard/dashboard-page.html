@@ -1,0 +1,185 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>{{ greeting }}, {{ auth.firstName() }}</h1>
+      <p>Este es el resumen de tus cuentas.</p>
+    </div>
+    <div class="row wrap">
+      <a routerLink="/huchas" class="btn"><app-icon name="piggy" [size]="18" /> Nueva hucha</a>
+      <a routerLink="/transferir" class="btn btn-primary"
+        ><app-icon name="send" [size]="18" /> Transferir</a
+      >
+    </div>
+  </div>
+
+  <section class="hero-card" aria-label="Saldo total">
+    <div class="hero-main">
+      <span class="hero-label">Saldo total</span>
+      @if (loading()) {
+        <span class="skeleton hero-skeleton"></span>
+      } @else {
+        <strong class="hero-amount num">{{ total() | money }}</strong>
+      }
+      @if (checking(); as account) {
+        <div class="hero-iban">
+          <span class="num">{{ account.iban | iban }}</span>
+          <app-copy-button [value]="account.iban" label="Copiar IBAN" />
+          @if (account.status === 'FROZEN') {
+            <span class="badge bad">Congelada</span>
+          }
+        </div>
+      }
+    </div>
+    <div class="hero-side">
+      <div class="hero-stat">
+        <span>En huchas</span>
+        <strong class="num">{{ savingsTotal() | money }}</strong>
+      </div>
+      <div class="hero-stat">
+        <span>Este mes</span>
+        <strong class="num">{{ analytics()?.thisMonth?.net ?? 0 | money: true }}</strong>
+      </div>
+      @if (balanceTrend().length > 1) {
+        <div class="hero-trend">
+          <app-line-chart
+            [points]="balanceTrend()"
+            [height]="70"
+            [showAxis]="false"
+            ariaLabel="Saldo de los últimos 30 días"
+          />
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="accounts" aria-label="Tus cuentas">
+    @if (checking(); as account) {
+      <a class="account-tile" [routerLink]="['/cuentas', account.id]">
+        <span class="tile-icon"><app-icon name="wallet" /></span>
+        <span class="tile-name">{{ account.name }}</span>
+        <strong class="num">{{ account.balance | money }}</strong>
+        <span class="small muted">Ver movimientos →</span>
+      </a>
+    }
+    @for (pot of savings(); track pot.id) {
+      <a class="account-tile" routerLink="/huchas">
+        <span class="tile-icon pot"><app-icon [name]="pot.icon ?? 'piggy'" /></span>
+        <span class="tile-name truncate">{{ pot.name }}</span>
+        <strong class="num">{{ pot.balance | money }}</strong>
+        @if (pot.goalAmount) {
+          <span
+            class="progress"
+            role="progressbar"
+            [attr.aria-valuenow]="progress(pot)"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            <span [style.width.%]="progress(pot)"></span>
+          </span>
+          <span class="small muted">{{ progress(pot) }}% de {{ pot.goalAmount | money }}</span>
+        }
+      </a>
+    }
+    <a class="account-tile new" routerLink="/huchas">
+      <app-icon name="plus" />
+      <span>Crear hucha</span>
+    </a>
+  </section>
+
+  <div class="dashboard-grid">
+    <section class="card flush">
+      <div class="card-header padded">
+        <div>
+          <h2>Últimos movimientos</h2>
+          <p>Cuenta principal</p>
+        </div>
+        @if (checking(); as account) {
+          <a [routerLink]="['/cuentas', account.id]" class="btn btn-sm">Ver todos</a>
+        }
+      </div>
+      @if (loading()) {
+        <div class="stack padded">
+          @for (i of [1, 2, 3, 4]; track i) {
+            <span class="skeleton" style="height: 44px"></span>
+          }
+        </div>
+      } @else {
+        @for (group of groupedMovements(); track group.day) {
+          <h3 class="day">{{ group.day }}</h3>
+          <ul class="list">
+            @for (movement of group.items; track movement.id) {
+              <li>
+                <button type="button" class="list-item" (click)="selected.set(movement)">
+                  <app-movement-row [movement]="movement" class="grow" />
+                </button>
+              </li>
+            }
+          </ul>
+        } @empty {
+          <div class="empty">
+            <app-icon name="activity" [size]="28" />
+            <span>Aún no tienes movimientos.</span>
+          </div>
+        }
+      }
+    </section>
+
+    <div class="side-column">
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Gastos de este mes</h2>
+            <p>Por categoría</p>
+          </div>
+          <a routerLink="/analitica" class="btn btn-sm">Analítica</a>
+        </div>
+        @if (categorySlices().length > 0) {
+          <div class="spending">
+            <app-donut-chart
+              [slices]="categorySlices()"
+              [centerValue]="analytics()?.thisMonth?.expenses ?? 0 | money"
+              centerLabel="gastado"
+              [size]="150"
+              ariaLabel="Gasto por categoría este mes"
+            />
+            <ul class="legend-list">
+              @for (item of topCategories(); track item.category) {
+                <li>
+                  <i [style.background]="categoryMeta[item.category].color"></i>
+                  <span class="grow">{{ categoryMeta[item.category].label }}</span>
+                  <strong class="num">{{ item.amount | money }}</strong>
+                </li>
+              }
+            </ul>
+          </div>
+        } @else {
+          <div class="empty small">Este mes aún no has gastado nada.</div>
+        }
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Ingresos y gastos</h2>
+            <p>Últimos 6 meses</p>
+          </div>
+        </div>
+        <app-bar-chart
+          [data]="monthBars()"
+          [seriesLabels]="['Ingresos', 'Gastos']"
+          ariaLabel="Ingresos y gastos por mes"
+        />
+      </section>
+    </div>
+  </div>
+</div>
+
+<app-modal
+  title="Detalle del movimiento"
+  [open]="selected() !== null"
+  (closed)="selected.set(null)"
+>
+  @if (selected(); as movement) {
+    <app-movement-detail [movement]="movement" />
+  }
+</app-modal>

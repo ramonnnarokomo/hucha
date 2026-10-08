@@ -1,0 +1,66 @@
+:host {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 40px 48px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 85% 15%, rgb(45 212 191 / 0.35), transparent 40%),
+    linear-gradient(150deg, var(--hero-from), var(--hero-to));
+  color: #fff;
+}
+
+.form-side {
+  display: grid;
+  place-items: center;
+  padding: 32px 24px;
+}
+
+.form-card {
+  display: grid;
+  gap: 18px;
+  width: min(420px, 100%);
+}
+
+.form-card header p {
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.demo {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.demo-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.switch-link {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  :host {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: 28px 24px;
+  }
+}

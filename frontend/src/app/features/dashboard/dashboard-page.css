@@ -1,0 +1,198 @@
+.hero-card {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+  padding: 28px;
+  border-radius: 22px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 90% 0%, rgb(45 212 191 / 0.35), transparent 45%),
+    linear-gradient(140deg, var(--hero-from), var(--hero-to));
+  box-shadow: var(--shadow);
+}
+
+.hero-main {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+}
+
+.hero-label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.hero-amount {
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.hero-skeleton {
+  width: 220px;
+  height: 44px;
+  opacity: 0.4;
+}
+
+.hero-iban {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.hero-iban app-copy-button {
+  color: #fff;
+}
+
+.hero-side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.hero-stat {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.1);
+}
+
+.hero-stat span {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.hero-stat strong {
+  font-size: 1.15rem;
+}
+
+.hero-trend {
+  grid-column: 1 / -1;
+  --brand: #5eead4;
+  --border: rgb(255 255 255 / 0.15);
+  --surface: #0f3b38;
+}
+
+.accounts {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(200px, 1fr);
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.account-tile {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none !important;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+
+.account-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.account-tile strong {
+  font-size: 1.2rem;
+}
+
+.tile-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: var(--brand-soft);
+  color: var(--brand-text);
+}
+
+.tile-icon.pot {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.tile-name {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.account-tile.new {
+  place-content: center;
+  justify-items: center;
+  border-style: dashed;
+  color: var(--muted);
+  box-shadow: none;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.side-column {
+  display: grid;
+  gap: 20px;
+}
+
+.spending {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.legend-list {
+  flex: 1;
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+}
+
+.legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-list i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+@media (max-width: 960px) {
+  .hero-card,
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .hero-card {
+    padding: 22px;
+  }
+
+  .spending {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
