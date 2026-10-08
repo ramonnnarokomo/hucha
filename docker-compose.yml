@@ -1,0 +1,48 @@
+# Hucha completo: PostgreSQL + API (Spring Boot) + web (Angular servida por nginx).
+#   cp .env.example .env   (y cambia los secretos)
+#   docker compose up --build
+#   -> http://localhost:4200   (usuarios de prueba: lucia@hucha.dev / Demo1234)
+name: hucha
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: hucha
+      POSTGRES_USER: hucha
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hucha -d hucha"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      DB_URL: jdbc:postgresql://db:5432/hucha
+      DB_USER: hucha
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET en .env (32 caracteres o más)}
+      DEMO_DATA: ${DEMO_DATA:-true}
+      REFRESH_COOKIE_SECURE: ${REFRESH_COOKIE_SECURE:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      # Solo desde esta máquina: desde fuera se entra por nginx (y así nadie puede falsear X-Forwarded-For).
+      - "127.0.0.1:8080:8080" # Swagger UI en http://localhost:8080/swagger-ui.html
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "4200:80"
+
+volumes:
+  db-data:
