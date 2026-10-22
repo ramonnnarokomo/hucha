@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🐷 Hucha
+# Hucha
 
 **Banca digital de demostración: cuentas con IBAN, transferencias con verificación por código, tarjeta virtual, huchas de ahorro y avisos en tiempo real.**
 
@@ -25,6 +25,7 @@ Spring Boot 3.5 · Java 17 · PostgreSQL · Angular 21 · Docker
 - [Capturas](#capturas)
 - [Arquitectura](#arquitectura)
 - [Decisiones técnicas](#decisiones-técnicas)
+- [Diseño](#diseño)
 - [Cómo arrancarlo](#cómo-arrancarlo)
 - [Tests](#tests)
 - [API](#api)
@@ -43,7 +44,7 @@ Spring Boot 3.5 · Java 17 · PostgreSQL · Angular 21 · Docker
 - **Analítica**: ingresos y gastos por mes, gasto por categoría, evolución del saldo a 90 días y un resumen en lenguaje natural.
 - **Avisos en tiempo real** (Server-Sent Events): dinero recibido, pagos denegados, códigos de verificación...
 - **Seguridad**: cambio de contraseña, lista de sesiones abiertas por dispositivo y cierre remoto.
-- Modo oscuro y diseño adaptado al móvil.
+- Diseño propio inspirado en un libro de cuentas, con modo oscuro y versión móvil.
 
 **Como administrador (back-office)**
 
@@ -162,9 +163,20 @@ sequenceDiagram
 - Angular 21 con componentes *standalone*, **signals**, `OnPush` en todo y **sin zone.js**.
 - Formularios reactivos, *lazy loading* por página y guards por rol (cliente o administrador).
 - Interceptor funcional que añade el token y, ante un `401`, **renueva una sola vez** y repite la petición. Si hay varias a la vez, comparten la misma renovación.
-- **Gráficos SVG hechos a mano** (barras, donut y línea con *tooltip*), sin librerías. Miden su ancho real con `ResizeObserver` para que el texto no se deforme.
-- Sistema de diseño propio con variables CSS, modo oscuro y la fuente Inter incluida en el bundle.
+- **Gráficos SVG hechos a mano** (barras, barra de reparto y línea con *tooltip*), sin librerías. Miden su ancho real con `ResizeObserver` para que el texto no se deforme.
+- Sistema de diseño propio en CSS con variables, modo claro y oscuro, y las fuentes incluidas en el bundle (sin peticiones a Google Fonts).
 - Accesibilidad: `<dialog>` nativo para los modales, roles ARIA, foco visible y `prefers-reduced-motion`.
+
+## Diseño
+
+La interfaz no parte de ninguna plantilla ni librería de componentes. La idea sale del propio backend: si el dinero se apunta en un **libro mayor**, la aplicación se parece a uno.
+
+- **Papel y tinta.** Fondo color papel, texto casi negro y **un solo color de acento** (tinta azul). Nada de degradados.
+- **Cifras en monoespaciada** (IBM Plex Mono). Los importes, IBAN, fechas y referencias se alinean en columna como en un extracto; el resto del texto va en IBM Plex Sans.
+- **Convenciones contables.** Los totales llevan doble subrayado, los ingresos van en verde, el signo menos es el tipográfico (−) y los números rojos son rojos.
+- **Líneas finas en lugar de sombras**, esquinas casi rectas y etiquetas tipo sello para los estados (`ENVIADA`, `CONGELADA`).
+- **Piezas con intención:** el justificante parece un ticket impreso, el progreso de las huchas es una regla graduada y la portada muestra un asiento de doble entrada sobre papel pautado con margen rojo.
+- **Gráficos sobrios:** barras planas, una barra de reparto en lugar de un donut (las longitudes se comparan mejor que los ángulos) y una línea sin relleno.
 
 ## Cómo arrancarlo
 
