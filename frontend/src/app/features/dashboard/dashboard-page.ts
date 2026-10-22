@@ -4,14 +4,14 @@ import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { BankApi } from '../../core/api';
 import { AuthService } from '../../core/auth.service';
-import { CATEGORIES, monthShort } from '../../core/format';
+import { CATEGORIES, monthLong, monthShort, savingsColor } from '../../core/format';
 import { groupByDay } from '../../core/grouping';
 import { Account, AnalyticsSummary, Movement } from '../../core/models';
 import { NotificationsService } from '../../core/notifications.service';
-import { IbanPipe, MoneyPipe } from '../../core/pipes';
+import { IbanPipe, MoneyPipe, PercentPipe } from '../../core/pipes';
 import { BarChart, BarGroup } from '../../shared/charts/bar-chart';
-import { DonutChart, DonutSlice } from '../../shared/charts/donut-chart';
 import { LineChart } from '../../shared/charts/line-chart';
+import { SplitBar, SplitPart } from '../../shared/charts/split-bar';
 import { CopyButton } from '../../shared/copy-button';
 import { Icon } from '../../shared/icon';
 import { Modal } from '../../shared/modal';
@@ -25,10 +25,11 @@ import { MovementRow } from '../../shared/movement-row';
     Icon,
     MoneyPipe,
     IbanPipe,
+    PercentPipe,
     MovementRow,
     MovementDetail,
     Modal,
-    DonutChart,
+    SplitBar,
     BarChart,
     LineChart,
     CopyButton,
@@ -56,9 +57,16 @@ export class DashboardPage {
     this.savings().reduce((sum, a) => sum + a.balance, 0),
   );
 
-  protected readonly greeting = (() => {
-    const hour = new Date().getHours();
-    return hour < 14 ? 'Buenos días' : hour < 21 ? 'Buenas tardes' : 'Buenas noches';
+  /** "miércoles, 22 de octubre", encima del saludo. */
+  protected readonly today = new Intl.DateTimeFormat('es-ES', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date());
+
+  protected readonly monthName = (() => {
+    const now = new Date();
+    return monthLong(`${now.getFullYear()}-${now.getMonth() + 1}`).replace(/ de \d+$/, '');
   })();
 
   /** Movimientos agrupados por día ("Hoy", "Ayer", "3 de octubre"). */
@@ -66,7 +74,7 @@ export class DashboardPage {
     groupByDay(this.movements(), (m) => m.occurredAt),
   );
 
-  protected readonly categorySlices = computed<DonutSlice[]>(() =>
+  protected readonly categoryParts = computed<SplitPart[]>(() =>
     (this.analytics()?.categories ?? []).map((c) => ({
       label: CATEGORIES[c.category].label,
       value: c.amount,
@@ -75,7 +83,7 @@ export class DashboardPage {
   );
 
   protected readonly topCategories = computed(() =>
-    (this.analytics()?.categories ?? []).slice(0, 4),
+    (this.analytics()?.categories ?? []).slice(0, 5),
   );
 
   protected readonly monthBars = computed<BarGroup[]>(() =>
@@ -107,6 +115,10 @@ export class DashboardPage {
           this.load();
         }
       });
+  }
+
+  protected potColor(account: Account): string {
+    return savingsColor(account.icon);
   }
 
   protected progress(account: Account): number {

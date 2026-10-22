@@ -21,7 +21,8 @@ describe('format', () => {
 
   it('pone signo a los importes salvo al cero', () => {
     expect(plain(signedMoney(2150))).toBe('+2.150,00 €');
-    expect(plain(signedMoney(-39.16))).toBe('-39,16 €');
+    expect(plain(signedMoney(-39.16))).toBe('\u221239,16 €');
+    expect(plain(money(-5))).toBe('\u22125,00 €');
     expect(plain(signedMoney(0))).toBe('0,00 €');
   });
 

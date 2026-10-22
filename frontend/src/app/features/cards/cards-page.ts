@@ -211,10 +211,6 @@ export class CardsPage {
     return categoryMeta(category).color;
   }
 
-  protected categoryIcon(category: Category): string {
-    return categoryMeta(category).icon;
-  }
-
   private update(
     card: Card,
     change: Parameters<BankApi['updateCard']>[1],

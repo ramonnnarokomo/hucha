@@ -3,18 +3,15 @@ import { ENTRY_TYPES, categoryMeta, movementTitle } from '../core/format';
 import { Movement } from '../core/models';
 import { IbanPipe, LongDateTimePipe, MoneyPipe } from '../core/pipes';
 import { CopyButton } from './copy-button';
-import { Icon } from './icon';
 
 /** Detalle de un movimiento, para mostrarlo dentro de un modal. */
 @Component({
   selector: 'app-movement-detail',
-  imports: [Icon, MoneyPipe, IbanPipe, LongDateTimePipe, CopyButton],
+  imports: [MoneyPipe, IbanPipe, LongDateTimePipe, CopyButton],
   template: `
     @let m = movement();
     <div class="summary">
-      <span class="cat" [style.color]="meta().color" [style.background]="meta().color + '1f'">
-        <app-icon [name]="meta().icon" [size]="24" />
-      </span>
+      <span class="eyebrow">{{ types[m.type] }}</span>
       <strong class="amount num" [class.positive]="m.amount > 0">{{
         m.amount | money: true
       }}</strong>
@@ -22,11 +19,9 @@ import { Icon } from './icon';
       <span class="small muted">{{ m.occurredAt | longDateTime }}</span>
     </div>
     <dl class="definition">
-      <dt>Tipo</dt>
-      <dd>{{ types[m.type] }}</dd>
       @if (m.category) {
         <dt>Categoría</dt>
-        <dd>{{ meta().label }}</dd>
+        <dd class="category"><i [style.background]="meta().color"></i>{{ meta().label }}</dd>
       }
       @if (m.concept) {
         <dt>Concepto</dt>
@@ -54,28 +49,31 @@ import { Icon } from './icon';
   styles: `
     :host {
       display: grid;
-      gap: 20px;
+      gap: 18px;
     }
     .summary {
       display: grid;
-      justify-items: center;
-      gap: 6px;
-      text-align: center;
-    }
-    .cat {
-      display: grid;
-      place-items: center;
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      margin-bottom: 4px;
+      gap: 4px;
+      padding-bottom: 16px;
+      border-bottom: 3px double var(--border-strong);
     }
     .amount {
       font-size: 2rem;
-      letter-spacing: -0.02em;
+      font-weight: 500;
+      letter-spacing: -0.03em;
     }
     .title {
       font-weight: 600;
+    }
+    .category {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+    .category i {
+      width: 8px;
+      height: 8px;
     }
     .iban {
       display: inline-flex;
@@ -85,7 +83,7 @@ import { Icon } from './icon';
     }
     .ref {
       color: var(--muted);
-      font-weight: 500;
+      font-weight: 400;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

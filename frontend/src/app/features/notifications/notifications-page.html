@@ -1,11 +1,12 @@
 <div class="page narrow">
   <div class="page-header">
     <div>
+      <span class="eyebrow">Bandeja</span>
       <h1>Avisos</h1>
       <p>
         Te llegan al momento, sin recargar.
         <span class="live" [class.on]="service.connected()">
-          <i></i>{{ service.connected() ? 'Conectado en tiempo real' : 'Reconectando...' }}
+          <i></i>{{ service.connected() ? 'En directo' : 'Reconectando' }}
         </span>
       </p>
     </div>
@@ -27,7 +28,7 @@
         (click)="markAll()"
         [disabled]="service.unread() === 0"
       >
-        <app-icon name="check" [size]="15" /> Marcar todo como leído
+        Marcar todo como leído
       </button>
     </div>
   </div>
@@ -49,9 +50,7 @@
               [class.unread]="!n.read"
               (click)="open(n)"
             >
-              <span class="type-icon" [class]="'type-icon ' + look(n).tone"
-                ><app-icon [name]="look(n).icon" [size]="19"
-              /></span>
+              <span class="type" [class]="'type ' + look(n).tone">{{ look(n).label }}</span>
               <span class="grow">
                 <span class="row between top">
                   <strong class="truncate">{{ n.title }}</strong>
@@ -59,14 +58,10 @@
                 </span>
                 <span class="body">{{ n.body }}</span>
               </span>
-              @if (!n.read) {
-                <span class="dot" aria-label="Sin leer"></span>
-              }
             </button>
           </li>
         } @empty {
           <li class="empty">
-            <app-icon name="bell" [size]="28" />
             <span>{{ onlyUnread() ? 'Lo tienes todo leído.' : 'No tienes avisos todavía.' }}</span>
           </li>
         }

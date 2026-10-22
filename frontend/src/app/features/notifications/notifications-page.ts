@@ -4,22 +4,21 @@ import { BankApi } from '../../core/api';
 import { AppNotification, NotificationType } from '../../core/models';
 import { NotificationsService } from '../../core/notifications.service';
 import { TimeAgoPipe } from '../../core/pipes';
-import { Icon } from '../../shared/icon';
 
-const LOOKS: Record<NotificationType, { icon: string; tone: 'good' | 'bad' | 'warn' | '' }> = {
-  WELCOME: { icon: 'gift', tone: 'good' },
-  SCA_CODE: { icon: 'lock', tone: '' },
-  TRANSFER_RECEIVED: { icon: 'download', tone: 'good' },
-  TRANSFER_COMPLETED: { icon: 'send', tone: '' },
-  CARD_DECLINED: { icon: 'card', tone: 'bad' },
-  ACCOUNT_FROZEN: { icon: 'snowflake', tone: 'bad' },
-  ACCOUNT_UNFROZEN: { icon: 'check', tone: 'good' },
-  SECURITY: { icon: 'shield', tone: 'warn' },
+const LOOKS: Record<NotificationType, { label: string; tone: 'good' | 'bad' | 'warn' | '' }> = {
+  WELCOME: { label: 'Alta', tone: 'good' },
+  SCA_CODE: { label: 'Código', tone: '' },
+  TRANSFER_RECEIVED: { label: 'Ingreso', tone: 'good' },
+  TRANSFER_COMPLETED: { label: 'Envío', tone: '' },
+  CARD_DECLINED: { label: 'Tarjeta', tone: 'bad' },
+  ACCOUNT_FROZEN: { label: 'Cuenta', tone: 'bad' },
+  ACCOUNT_UNFROZEN: { label: 'Cuenta', tone: 'good' },
+  SECURITY: { label: 'Seguridad', tone: 'warn' },
 };
 
 @Component({
   selector: 'app-notifications-page',
-  imports: [Icon, TimeAgoPipe],
+  imports: [TimeAgoPipe],
   templateUrl: './notifications-page.html',
   styleUrl: './notifications-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,7 +47,7 @@ export class NotificationsPage {
   }
 
   protected look(notification: AppNotification) {
-    return LOOKS[notification.type] ?? { icon: 'bell', tone: '' };
+    return LOOKS[notification.type] ?? { label: 'Aviso', tone: '' };
   }
 
   protected open(notification: AppNotification): void {

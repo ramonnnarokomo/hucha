@@ -25,7 +25,10 @@
               }
             ],
             "styles": [
-              "@fontsource-variable/inter/index.css",
+              "@fontsource-variable/ibm-plex-sans/index.css",
+              "@fontsource/ibm-plex-mono/400.css",
+              "@fontsource/ibm-plex-mono/500.css",
+              "@fontsource/ibm-plex-mono/600.css",
               "src/styles.css"
             ]
           },

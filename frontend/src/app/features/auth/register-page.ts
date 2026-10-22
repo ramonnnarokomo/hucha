@@ -15,6 +15,7 @@ import { AuthHero } from './auth-hero';
     <section class="form-side">
       <form class="form-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <header>
+          <span class="eyebrow">Alta en un minuto</span>
           <h1>Abre tu cuenta</h1>
           <p>Recibirás un IBAN, una tarjeta virtual y 1.000 € de regalo para probarla.</p>
         </header>

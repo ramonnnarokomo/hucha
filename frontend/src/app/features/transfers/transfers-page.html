@@ -1,11 +1,12 @@
 <div class="page">
   <div class="page-header">
     <div>
+      <span class="eyebrow">Pagos</span>
       <h1>Transferencias</h1>
       <p>Las que has enviado. Las que recibes aparecen en los movimientos de tu cuenta.</p>
     </div>
     <a routerLink="/transferir" class="btn btn-primary"
-      ><app-icon name="send" [size]="18" /> Nueva transferencia</a
+      ><app-icon name="send" [size]="16" /> Nueva transferencia</a
     >
   </div>
 
@@ -54,9 +55,9 @@
                   >
                 </span>
                 <span class="right">
-                  <span class="amount num" [class.struck]="t.status !== 'COMPLETED'"
-                    >-{{ t.amount | money }}</span
-                  >
+                  <span class="amount num" [class.struck]="t.status !== 'COMPLETED'">{{
+                    t.amount * -1 | money
+                  }}</span>
                   @if (t.status !== 'COMPLETED') {
                     <span class="badge" [class]="'badge ' + status[t.status].tone">{{
                       status[t.status].label
@@ -73,7 +74,6 @@
         </ul>
       } @empty {
         <div class="empty">
-          <app-icon name="send" [size]="28" />
           <span>Todavía no has enviado ninguna transferencia.</span>
           <a routerLink="/transferir" class="btn btn-sm">Hacer la primera</a>
         </div>
@@ -99,7 +99,7 @@
 >
   @if (selected(); as t) {
     <div class="detail-head">
-      <strong class="num">-{{ t.amount | money }}</strong>
+      <strong class="num">{{ t.amount * -1 | money }}</strong>
       <span class="badge" [class]="'badge ' + status[t.status].tone">{{
         status[t.status].label
       }}</span>

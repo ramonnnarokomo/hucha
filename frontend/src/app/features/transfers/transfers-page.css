@@ -3,7 +3,7 @@
 }
 
 .title {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .sub {
@@ -19,7 +19,7 @@
 }
 
 .amount {
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
 }
 
@@ -29,18 +29,21 @@
 }
 
 .avatar.brand {
-  background: var(--brand-soft);
-  color: var(--brand-text);
+  border-color: var(--accent);
+  color: var(--accent-text);
 }
 
 .detail-head {
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-  padding: 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 3px double var(--border-strong);
 }
 
 .detail-head strong {
   font-size: 2rem;
-  letter-spacing: -0.02em;
+  font-weight: 500;
+  letter-spacing: -0.04em;
 }

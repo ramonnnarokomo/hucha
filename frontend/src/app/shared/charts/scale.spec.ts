@@ -1,4 +1,4 @@
-import { donutSegments, linear, niceMax, niceTicks, smoothPath } from './scale';
+import { linear, niceMax, niceTicks, smoothPath } from './scale';
 
 describe('scale', () => {
   it('redondea a valores bonitos', () => {
@@ -20,15 +20,6 @@ describe('scale', () => {
     expect(y(0)).toBe(200);
     expect(y(50)).toBe(100);
     expect(y(100)).toBe(0);
-  });
-
-  it('reparte el donut según los valores', () => {
-    const segments = donutSegments([75, 25], 100, 0);
-    expect(segments).toEqual([
-      { length: 75, offset: -0 },
-      { length: 25, offset: -75 },
-    ]);
-    expect(donutSegments([0, 0], 100)).toEqual([]);
   });
 
   it('dibuja una curva que pasa por todos los puntos', () => {

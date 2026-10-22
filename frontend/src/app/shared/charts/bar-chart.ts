@@ -40,7 +40,7 @@ export interface BarGroup {
                 [attr.y]="bar.y"
                 [attr.width]="bar.width"
                 [attr.height]="bar.height"
-                rx="4"
+                rx="0"
                 [attr.fill]="colors()[$index]"
               >
                 <title>{{ seriesLabels()[$index] }} {{ group.label }}: {{ bar.text }}</title>
@@ -65,7 +65,7 @@ export interface BarGroup {
 export class BarChart {
   readonly data = input.required<BarGroup[]>();
   readonly seriesLabels = input<string[]>([]);
-  readonly colors = input<string[]>(['var(--brand)', 'var(--accent)']);
+  readonly colors = input<string[]>(['var(--chart-1)', 'var(--chart-2)']);
   readonly ariaLabel = input('Gráfico de barras');
 
   protected readonly width = observeWidth(560);
@@ -94,17 +94,17 @@ export class BarChart {
     const plot = this.height - this.padBottom - this.padTop;
     const slot = (this.width() - this.padLeft) / Math.max(groups.length, 1);
     const series = Math.max(1, ...groups.map((g) => g.values.length));
-    const barWidth = Math.min(28, (slot * 0.6) / series);
+    const barWidth = Math.min(22, (slot * 0.5) / series);
     return groups.map((group, i) => {
       const center = this.padLeft + slot * i + slot / 2;
-      const start = center - (barWidth * series + 4 * (series - 1)) / 2;
+      const start = center - (barWidth * series + 2 * (series - 1)) / 2;
       return {
         label: group.label,
         center,
         bars: group.values.map((value, s) => {
           const height = Math.max(value > 0 ? 2 : 0, (value / max) * plot);
           return {
-            x: start + s * (barWidth + 4),
+            x: start + s * (barWidth + 2),
             y: this.padTop + plot - height,
             width: barWidth,
             height,

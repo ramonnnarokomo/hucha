@@ -1,8 +1,9 @@
-/* ---------- Pasos ---------- */
+/* ---------- Pasos: una regla dividida en cuatro tramos ---------- */
 
 .stepper {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -10,59 +11,34 @@
 
 .stepper li {
   display: flex;
-  flex: 1;
-  align-items: center;
-  gap: 10px;
+  align-items: baseline;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 2px solid var(--border);
   color: var(--muted);
   font-size: 0.88rem;
-  font-weight: 600;
 }
 
-.stepper li:not(:last-child)::after {
-  content: '';
-  flex: 1;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--border);
+.step-number {
+  font-size: 0.72rem;
 }
 
-.stepper li.complete::after {
-  background: var(--brand);
-}
-
-.dot {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid var(--border-strong);
-  background: var(--surface);
-  font-size: 0.8rem;
+.stepper li.complete {
+  border-top-color: var(--text-2);
+  color: var(--text-2);
 }
 
 .stepper li.active {
+  border-top-color: var(--ink);
   color: var(--text);
-}
-
-.stepper li.active .dot {
-  border-color: var(--brand);
-  color: var(--brand-text);
-  box-shadow: 0 0 0 4px var(--brand-soft);
-}
-
-.stepper li.complete .dot {
-  border-color: var(--brand);
-  background: var(--brand);
-  color: #fff;
+  font-weight: 600;
 }
 
 /* ---------- Estructura ---------- */
 
 .layout {
   display: grid;
-  gap: 20px;
+  gap: 24px;
   grid-template-columns: minmax(0, 1fr) 300px;
   align-items: start;
 }
@@ -74,7 +50,7 @@
 
 .main {
   display: grid;
-  gap: 22px;
+  gap: 24px;
   padding: 28px;
 }
 
@@ -82,7 +58,7 @@
   display: grid;
   gap: 16px;
   position: sticky;
-  top: 88px;
+  top: calc(var(--masthead-height) + 24px);
 }
 
 .block {
@@ -98,7 +74,7 @@
 .actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -120,28 +96,27 @@
 
 .own-accounts {
   display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 }
 
 .own {
   display: grid;
   gap: 4px;
   justify-items: start;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--surface);
+  background: transparent;
   color: inherit;
   font: inherit;
-  font-weight: 600;
   text-align: left;
   cursor: pointer;
   min-width: 0;
 }
 
 .own:hover {
-  border-color: var(--brand);
+  border-color: var(--text-2);
   background: var(--surface-hover);
 }
 
@@ -149,20 +124,15 @@
   max-width: 100%;
 }
 
-.own-icon {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  margin-bottom: 4px;
-  border-radius: 10px;
-  background: var(--brand-soft);
-  color: var(--brand-text);
+.own-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
 }
 
-.own-icon.pot {
-  background: var(--warning-soft);
-  color: var(--warning);
+.own-name app-icon {
+  color: var(--muted);
 }
 
 .list.bordered {
@@ -173,6 +143,15 @@
 
 .list.bordered .list-item {
   padding: 10px 14px;
+}
+
+.go {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+button.list-item:hover .go {
+  color: var(--accent-text);
 }
 
 .new-recipient {
@@ -189,7 +168,7 @@
 /* ---------- Paso 2 ---------- */
 
 .amount-field {
-  gap: 12px;
+  gap: 10px;
 }
 
 .amount-wrap {
@@ -197,42 +176,34 @@
 }
 
 .amount-wrap .input-amount {
-  min-height: 76px;
-  padding-right: 48px;
-  padding-left: 48px;
-  font-size: 2.4rem;
-  letter-spacing: -0.02em;
+  min-height: 72px;
+  padding-right: 52px;
+  font-size: 2.3rem;
+  letter-spacing: -0.03em;
 }
 
 .currency {
   position: absolute;
   top: 50%;
-  right: 20px;
+  right: 18px;
   transform: translateY(-50%);
+  font-family: var(--mono);
   font-size: 1.6rem;
-  font-weight: 700;
   color: var(--muted);
-}
-
-.chips.center {
-  justify-content: center;
 }
 
 /* ---------- Paso 3 ---------- */
 
 .review-amount {
   display: grid;
-  justify-items: center;
-  gap: 4px;
-  padding: 20px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-  text-align: center;
+  gap: 6px;
+  padding-bottom: 14px;
 }
 
 .review-amount strong {
   font-size: 2.2rem;
-  letter-spacing: -0.03em;
+  font-weight: 500;
+  letter-spacing: -0.04em;
 }
 
 /* ---------- Paso 4 (SCA) ---------- */
@@ -244,31 +215,19 @@
   margin: 0 auto;
 }
 
-.sca-icon {
-  display: grid;
-  place-items: center;
-  width: 60px;
-  height: 60px;
-  border-radius: 18px;
-  background: var(--brand-soft);
-  color: var(--brand-text);
-}
-
 .code-input {
-  max-width: 280px;
+  max-width: 300px;
   min-height: 64px;
   font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: 0.5em;
+  font-weight: 500;
+  letter-spacing: 0.55em;
   text-align: center;
-  padding-left: calc(14px + 0.5em);
+  padding-left: calc(12px + 0.55em);
 }
 
 .countdown {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.85rem;
   color: var(--muted);
 }
 
@@ -276,60 +235,46 @@
   color: var(--negative);
 }
 
-/* ---------- Resultado ---------- */
+/* ---------- Justificante: un ticket impreso ---------- */
 
 .receipt {
   display: grid;
-  justify-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  text-align: center;
+  gap: 14px;
+  justify-items: start;
 }
 
-.result {
-  display: grid;
-  place-items: center;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  margin-bottom: 4px;
-  animation: pop 0.35s cubic-bezier(0.2, 1.4, 0.4, 1);
+.receipt-head {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--border-strong);
 }
 
-.result.ok {
-  background: var(--positive-soft);
-  color: var(--positive);
+.receipt .stamp {
+  margin: 6px 0 2px;
 }
 
-.result.bad {
-  background: var(--negative-soft);
-  color: var(--negative);
-}
-
-.result.neutral {
-  background: var(--surface-hover);
+.stamp.muted {
   color: var(--muted);
-}
-
-@keyframes pop {
-  from {
-    transform: scale(0.6);
-    opacity: 0;
-  }
 }
 
 .receipt-amount {
   font-size: 2.4rem;
-  letter-spacing: -0.03em;
+  font-weight: 500;
+  letter-spacing: -0.04em;
 }
 
 .receipt-details {
   width: 100%;
-  margin: 8px 0;
-  padding: 16px 0;
+  margin: 4px 0;
+  padding: 6px 0;
   border-top: 1px dashed var(--border-strong);
   border-bottom: 1px dashed var(--border-strong);
-  text-align: left;
+}
+
+.receipt .actions {
+  width: 100%;
 }
 
 /* ---------- Lateral ---------- */
@@ -340,30 +285,23 @@
 }
 
 .avatar.brand {
-  background: var(--brand-soft);
-  color: var(--brand-text);
+  border-color: var(--accent);
+  color: var(--accent-text);
 }
 
 .summary-amount {
   padding-top: 12px;
-  border-top: 1px solid var(--border);
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.tips h3 {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
+  border-top: 1px solid var(--rule);
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 .tips ul {
   display: grid;
   gap: 8px;
-  margin: 0;
-  padding-left: 18px;
+  margin: 10px 0 0;
+  padding-left: 16px;
   font-size: 0.85rem;
   color: var(--text-2);
 }
@@ -385,11 +323,12 @@
     padding: 20px;
   }
 
-  .step-label {
-    display: none;
+  /* En el móvil los tramos se quedan como regla y solo se lee el paso actual. */
+  .stepper li:not(.active) > span {
+    visibility: hidden;
   }
 
-  .stepper li.active .step-label {
-    display: inline;
+  .stepper li.active {
+    white-space: nowrap;
   }
 }

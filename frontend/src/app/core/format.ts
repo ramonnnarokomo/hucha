@@ -22,16 +22,19 @@ const DATE_TIME = new Intl.DateTimeFormat('es-ES', { dateStyle: 'long', timeStyl
 const MONTH = new Intl.DateTimeFormat('es-ES', { month: 'short' });
 const MONTH_LONG = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
 
+/** Signo menos tipográfico (U+2212) en vez del guion: mide lo mismo que el más y alinea en columna. */
+const minus = (text: string) => text.replace('-', '\u2212');
+
 export function money(value: number | null | undefined): string {
-  return MONEY.format(value ?? 0);
+  return minus(MONEY.format(value ?? 0));
 }
 
 export function moneyShort(value: number | null | undefined): string {
-  return MONEY_SHORT.format(value ?? 0);
+  return minus(MONEY_SHORT.format(value ?? 0));
 }
 
 export function signedMoney(value: number | null | undefined): string {
-  return SIGNED.format(value ?? 0);
+  return minus(SIGNED.format(value ?? 0));
 }
 
 export function shortDate(iso: string): string {
@@ -98,20 +101,20 @@ export interface CategoryMeta {
 }
 
 export const CATEGORIES: Record<Category, CategoryMeta> = {
-  SALARY: { label: 'Nómina', color: '#059669', icon: 'briefcase' },
-  TRANSFER: { label: 'Transferencias', color: '#6366f1', icon: 'send' },
-  SAVINGS: { label: 'Ahorro', color: '#0d9488', icon: 'piggy' },
-  GROCERIES: { label: 'Supermercado', color: '#16a34a', icon: 'cart' },
-  RESTAURANTS: { label: 'Restaurantes', color: '#f97316', icon: 'utensils' },
-  TRANSPORT: { label: 'Transporte', color: '#0ea5e9', icon: 'car' },
-  SHOPPING: { label: 'Compras', color: '#ec4899', icon: 'bag' },
-  LEISURE: { label: 'Ocio', color: '#a855f7', icon: 'ticket' },
-  BILLS: { label: 'Recibos', color: '#eab308', icon: 'bolt' },
-  HOUSING: { label: 'Vivienda', color: '#64748b', icon: 'home' },
-  HEALTH: { label: 'Salud', color: '#ef4444', icon: 'heart' },
-  TRAVEL: { label: 'Viajes', color: '#14b8a6', icon: 'plane' },
-  GIFT: { label: 'Regalos', color: '#d946ef', icon: 'gift' },
-  OTHER: { label: 'Otros', color: '#94a3b8', icon: 'dots' },
+  SALARY: { label: 'Nómina', color: '#3d7a45', icon: 'briefcase' },
+  TRANSFER: { label: 'Transferencias', color: '#3b5c8f', icon: 'send' },
+  SAVINGS: { label: 'Ahorro', color: '#5d7a64', icon: 'piggy' },
+  GROCERIES: { label: 'Supermercado', color: '#6f8a2e', icon: 'cart' },
+  RESTAURANTS: { label: 'Restaurantes', color: '#b4612f', icon: 'utensils' },
+  TRANSPORT: { label: 'Transporte', color: '#3f7391', icon: 'car' },
+  SHOPPING: { label: 'Compras', color: '#93506f', icon: 'bag' },
+  LEISURE: { label: 'Ocio', color: '#6b5596', icon: 'ticket' },
+  BILLS: { label: 'Recibos', color: '#b08a1e', icon: 'bolt' },
+  HOUSING: { label: 'Vivienda', color: '#5c584f', icon: 'home' },
+  HEALTH: { label: 'Salud', color: '#a63a2b', icon: 'heart' },
+  TRAVEL: { label: 'Viajes', color: '#2f7d78', icon: 'plane' },
+  GIFT: { label: 'Regalos', color: '#a35e8c', icon: 'gift' },
+  OTHER: { label: 'Otros', color: '#8f8878', icon: 'dots' },
 };
 
 export const SPENDING_CATEGORIES: Category[] = [
@@ -140,15 +143,15 @@ export const ENTRY_TYPES: Record<EntryType, string> = {
 };
 
 export const SAVINGS_ICONS: { value: SavingsIcon; label: string; color: string }[] = [
-  { value: 'piggy', label: 'Hucha', color: '#0d9488' },
-  { value: 'plane', label: 'Viaje', color: '#0ea5e9' },
-  { value: 'home', label: 'Casa', color: '#64748b' },
-  { value: 'car', label: 'Coche', color: '#6366f1' },
-  { value: 'gift', label: 'Regalo', color: '#d946ef' },
-  { value: 'heart', label: 'Salud', color: '#ef4444' },
-  { value: 'study', label: 'Estudios', color: '#8b5cf6' },
-  { value: 'umbrella', label: 'Imprevistos', color: '#f59e0b' },
-  { value: 'star', label: 'Capricho', color: '#eab308' },
+  { value: 'piggy', label: 'Hucha', color: '#5d7a64' },
+  { value: 'plane', label: 'Viaje', color: '#3f7391' },
+  { value: 'home', label: 'Casa', color: '#5c584f' },
+  { value: 'car', label: 'Coche', color: '#3b5c8f' },
+  { value: 'gift', label: 'Regalo', color: '#a35e8c' },
+  { value: 'heart', label: 'Salud', color: '#a63a2b' },
+  { value: 'study', label: 'Estudios', color: '#6b5596' },
+  { value: 'umbrella', label: 'Imprevistos', color: '#b08a1e' },
+  { value: 'star', label: 'Capricho', color: '#b4612f' },
 ];
 
 export function savingsColor(icon: SavingsIcon | undefined | null): string {

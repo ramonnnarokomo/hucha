@@ -1,10 +1,11 @@
 <div class="page">
   <div class="page-header">
     <div>
+      <span class="eyebrow">Pagos</span>
       <h1>Transferir</h1>
       <p>A cualquier IBAN de la zona SEPA. Entre clientes de Hucha llega al instante.</p>
     </div>
-    <a routerLink="/transferencias" class="btn"><app-icon name="swap" [size]="18" /> Historial</a>
+    <a routerLink="/transferencias" class="btn">Ver el historial</a>
   </div>
 
   @if (step() !== 'done') {
@@ -15,13 +16,7 @@
           [class.complete]="i < stepIndex()"
           [attr.aria-current]="i === stepIndex() ? 'step' : null"
         >
-          <span class="dot">
-            @if (i < stepIndex()) {
-              <app-icon name="check" [size]="14" [stroke]="2.6" />
-            } @else {
-              {{ i + 1 }}
-            }
-          </span>
+          <span class="step-number num">{{ i < stepIndex() ? '✓' : '0' + (i + 1) }}</span>
           <span class="step-label">{{ s.label }}</span>
         </li>
       }
@@ -48,13 +43,14 @@
                 <div class="own-accounts">
                   @for (account of activeAccounts(); track account.id) {
                     <button type="button" class="own" (click)="chooseOwn(account)">
-                      <span class="own-icon" [class.pot]="account.type === 'SAVINGS'">
-                        <app-icon
+                      <span class="own-name truncate"
+                        ><app-icon
                           [name]="account.type === 'SAVINGS' ? (account.icon ?? 'piggy') : 'wallet'"
-                          [size]="18"
+                          [size]="15"
+                          [stroke]="1.6"
                         />
-                      </span>
-                      <span class="truncate">{{ account.name }}</span>
+                        {{ account.name }}</span
+                      >
                       <span class="small muted num">{{ account.balance | money }}</span>
                     </button>
                   }
@@ -91,7 +87,7 @@
                       @if (p.internal) {
                         <span class="badge brand">Hucha</span>
                       }
-                      <app-icon name="send" [size]="16" class="muted" />
+                      <span class="go">Elegir →</span>
                     </button>
                   </li>
                 } @empty {
@@ -127,27 +123,18 @@
                 @if (ibanLooksValid()) {
                   <div class="iban-status">
                     @if (ownIban(); as own) {
-                      <span class="badge brand"
-                        ><app-icon name="wallet" [size]="13" /> Es tu cuenta «{{ own.name }}»</span
-                      >
+                      <span class="badge brand">Es tu cuenta «{{ own.name }}»</span>
                     } @else if (ibanCheck(); as check) {
                       @if (check.internal) {
-                        <span class="badge ok"
-                          ><app-icon name="bolt" [size]="13" /> Cliente de Hucha · llega al
-                          instante</span
-                        >
+                        <span class="badge ok">Cliente de Hucha · llega al instante</span>
                       } @else {
-                        <span class="badge"
-                          ><app-icon name="bank" [size]="13" /> Otra entidad · SEPA</span
-                        >
+                        <span class="badge">Otra entidad · SEPA</span>
                       }
                       @if (check.savedPayee) {
                         <span class="badge">Ya está en tus beneficiarios</span>
                       }
                     } @else {
-                      <span class="badge ok"
-                        ><app-icon name="check" [size]="13" /> IBAN válido</span
-                      >
+                      <span class="badge ok">IBAN válido</span>
                     }
                   </div>
                 } @else if (
@@ -172,9 +159,7 @@
                 }
               </div>
               <div class="actions">
-                <button type="submit" class="btn btn-primary">
-                  Continuar <app-icon name="send" [size]="16" />
-                </button>
+                <button type="submit" class="btn btn-primary">Continuar</button>
               </div>
             </form>
           }
@@ -210,7 +195,7 @@
                 />
                 <span class="currency">€</span>
               </div>
-              <div class="chips center">
+              <div class="chips">
                 @for (value of quickAmounts; track value) {
                   <button type="button" class="chip" (click)="setQuickAmount(value)">
                     {{ value }} €
@@ -218,9 +203,12 @@
                 }
               </div>
               @if (amountError(); as message) {
-                <span class="error-text center">{{ message }}</span>
+                <span class="error-text">{{ message }}</span>
               } @else if (fromAccount(); as from) {
-                <span class="hint center">Disponible: {{ from.balance | money }}</span>
+                <span class="hint"
+                  >Disponible en {{ from.name }}:
+                  <span class="num">{{ from.balance | money }}</span></span
+                >
               }
             </div>
 
@@ -264,10 +252,9 @@
             <h2>Revisa la transferencia</h2>
             @if (recipient(); as r) {
               <div class="review-amount">
-                <span class="small muted">Vas a enviar</span>
-                <strong class="num">{{ amount() | money }}</strong>
-                <span
-                  >a <b>{{ r.name }}</b></span
+                <span class="eyebrow">Vas a enviar a {{ r.name }}</span>
+                <strong class="num"
+                  ><span class="total">{{ amount() | money }}</span></strong
                 >
               </div>
               <dl class="definition">
@@ -305,8 +292,6 @@
               <button type="button" class="btn btn-primary" (click)="send()" [disabled]="sending()">
                 @if (sending()) {
                   <span class="spinner"></span>
-                } @else {
-                  <app-icon name="send" [size]="16" />
                 }
                 {{ error()?.status === 0 ? 'Reintentar' : 'Enviar' }} {{ amount() | money }}
               </button>
@@ -317,7 +302,7 @@
         <!-- ============ 4. Verificación (SCA) ============ -->
         @case ('sca') {
           <div class="stack-lg sca">
-            <span class="sca-icon"><app-icon name="shield" [size]="28" /></span>
+            <span class="eyebrow">Paso de seguridad</span>
             <h2>Introduce el código de verificación</h2>
             <p class="muted">
               Te lo hemos enviado a tus avisos (la campana de arriba). En un banco real llegaría por
@@ -336,8 +321,7 @@
             />
             <div class="countdown" [class.urgent]="secondsLeft() < 60">
               @if (secondsLeft() > 0) {
-                <app-icon name="clock" [size]="15" /> Caduca en
-                <span class="num">{{ countdown() }}</span>
+                Caduca en <span class="num">{{ countdown() }}</span>
               } @else {
                 El código ha caducado.
               }
@@ -372,22 +356,25 @@
         @case ('done') {
           @if (transfer(); as t) {
             <div class="receipt">
+              <div class="receipt-head">
+                <span class="eyebrow">Justificante de transferencia</span>
+                <span class="eyebrow num">{{ t.createdAt | longDateTime }}</span>
+              </div>
               @if (t.status === 'COMPLETED') {
-                <span class="result ok"><app-icon name="check" [size]="34" [stroke]="2.4" /></span>
-                <h2>¡Enviada!</h2>
-                <strong class="receipt-amount num">{{ t.amount | money }}</strong>
+                <span class="stamp positive">Enviada</span>
+                <strong class="receipt-amount num"
+                  ><span class="total">{{ t.amount | money }}</span></strong
+                >
                 <p class="muted">
                   {{ t.internal ? 'Ya está en la cuenta de' : 'Hemos enviado el dinero a' }}
                   <b>{{ t.beneficiaryName }}</b
                   >.
                 </p>
               } @else if (t.status === 'CANCELLED') {
-                <span class="result neutral"><app-icon name="x" [size]="34" [stroke]="2.4" /></span>
-                <h2>Transferencia cancelada</h2>
+                <span class="stamp muted">Cancelada</span>
                 <p class="muted">No se ha movido dinero de tu cuenta.</p>
               } @else {
-                <span class="result bad"><app-icon name="alert" [size]="34" [stroke]="2.2" /></span>
-                <h2>No se ha podido completar</h2>
+                <span class="stamp negative">Rechazada</span>
                 <p class="muted">
                   {{
                     error()?.message ??
@@ -410,12 +397,10 @@
               </dl>
 
               @if (payeeSaved()) {
-                <div class="alert success">
-                  <app-icon name="users" [size]="18" /> Guardado en tus beneficiarios.
-                </div>
+                <p class="small positive">Guardado en tus beneficiarios.</p>
               }
 
-              <div class="actions center">
+              <div class="actions">
                 <button type="button" class="btn" (click)="restart()">Hacer otra</button>
                 <a [routerLink]="['/cuentas', t.fromAccountId]" class="btn btn-primary"
                   >Ver movimientos</a
@@ -430,7 +415,7 @@
     @if (step() !== 'done') {
       <aside class="side">
         <section class="card summary">
-          <h3 class="label">Resumen</h3>
+          <span class="eyebrow">Resumen</span>
           @if (recipient(); as r) {
             <div class="row">
               <span class="avatar" [class.brand]="r.internal">{{ initials(r.name) }}</span>
@@ -452,7 +437,7 @@
           }
         </section>
         <section class="card tips">
-          <h3 class="label"><app-icon name="lock" [size]="15" /> Consejos de seguridad</h3>
+          <span class="eyebrow">Antes de enviar</span>
           <ul>
             <li>Nunca te pediremos el código por teléfono ni por email.</li>
             <li>Si alguien te mete prisa para transferir, desconfía.</li>

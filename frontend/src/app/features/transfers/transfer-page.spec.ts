@@ -113,7 +113,7 @@ describe('TransferPage', () => {
     confirm.flush({ ...pending, status: 'COMPLETED', completedAt: new Date().toISOString() });
     fixture.detectChanges();
 
-    expect(page.textContent).toContain('¡Enviada!');
+    expect(page.textContent).toContain('Enviada');
     expect(page.textContent).toContain('Marcos Ruiz');
   });
 

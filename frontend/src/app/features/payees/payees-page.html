@@ -1,20 +1,21 @@
 <div class="page">
   <div class="page-header">
     <div>
+      <span class="eyebrow">Pagos</span>
       <h1>Beneficiarios</h1>
       <p>
         Las personas a las que envías dinero a menudo. Enviarles importes pequeños no pide código.
       </p>
     </div>
     <button type="button" class="btn btn-primary" (click)="openCreate()">
-      <app-icon name="plus" [size]="18" /> Añadir
+      <app-icon name="plus" [size]="16" /> Añadir
     </button>
   </div>
 
   <section class="card flush">
     <div class="toolbar">
       <label class="search">
-        <app-icon name="search" [size]="18" />
+        <app-icon name="search" [size]="16" />
         <span class="visually-hidden">Buscar beneficiario</span>
         <input
           class="input"
@@ -80,7 +81,6 @@
           </li>
         } @empty {
           <li class="empty">
-            <app-icon name="users" [size]="28" />
             @if (filter()) {
               <span>Nadie coincide con «{{ filter() }}».</span>
             } @else {

@@ -1,6 +1,7 @@
 <div class="page">
   <div class="page-header">
     <div>
+      <span class="eyebrow">Tarjeta de débito</span>
       <h1>Tarjetas</h1>
       <p>
         Tarjeta de débito virtual asociada a tu cuenta. Congélala al momento si no la encuentras.
@@ -15,7 +16,7 @@
       @if (issuing()) {
         <span class="spinner"></span>
       } @else {
-        <app-icon name="plus" [size]="18" />
+        <app-icon name="plus" [size]="16" />
       }
       Pedir otra tarjeta
     </button>
@@ -54,7 +55,7 @@
           aria-hidden="true"
         >
           <div class="cv-top">
-            <span class="cv-brand"><app-icon name="piggy" [size]="22" /> Hucha</span>
+            <span class="cv-brand"><app-icon name="logo" [size]="20" [stroke]="1.7" /> Hucha</span>
             <span class="cv-type">DÉBITO</span>
           </div>
           <span class="cv-chip"></span>
@@ -70,9 +71,9 @@
             </div>
           </div>
           @if (c.status === 'FROZEN') {
-            <span class="cv-overlay"><app-icon name="snowflake" [size]="40" /> Congelada</span>
+            <span class="cv-overlay"><span class="stamp">Congelada</span></span>
           } @else if (c.status === 'CANCELLED') {
-            <span class="cv-overlay">Cancelada</span>
+            <span class="cv-overlay"><span class="stamp">Cancelada</span></span>
           }
         </div>
         <p class="visually-hidden">Tarjeta terminada en {{ c.last4 }}, {{ statusLabel(c) }}.</p>
@@ -101,7 +102,6 @@
 
       <section class="card controls" aria-label="Ajustes de la tarjeta">
         <div class="control">
-          <span class="control-icon"><app-icon name="snowflake" [size]="20" /></span>
           <div class="grow">
             <strong>Congelar tarjeta</strong>
             <p class="small muted">
@@ -120,7 +120,6 @@
           </label>
         </div>
         <div class="control">
-          <span class="control-icon"><app-icon name="globe" [size]="20" /></span>
           <div class="grow">
             <strong>Compras por internet</strong>
             <p class="small muted">Si no compras online, desactívalo: menos riesgo de fraude.</p>
@@ -138,7 +137,6 @@
         </div>
         <div class="control column">
           <div class="row">
-            <span class="control-icon"><app-icon name="activity" [size]="20" /></span>
             <div class="grow">
               <strong>Límite mensual</strong>
               <p class="small muted">Las compras que lo superen se deniegan.</p>
@@ -272,13 +270,7 @@
         <ul class="list tx-list">
           @for (tx of transactions(); track tx.id) {
             <li class="list-item">
-              <span
-                class="cat"
-                [style.color]="categoryColor(tx.category)"
-                [style.background]="categoryColor(tx.category) + '1f'"
-              >
-                <app-icon [name]="categoryIcon(tx.category)" [size]="18" />
-              </span>
+              <i class="swatch" [style.background]="categoryColor(tx.category)"></i>
               <div class="grow">
                 <div class="truncate tx-title">{{ tx.merchant }}</div>
                 <div class="small muted truncate">
@@ -287,9 +279,9 @@
                 </div>
               </div>
               <div class="tx-right">
-                <span class="num tx-amount" [class.struck]="tx.status === 'DECLINED'"
-                  >-{{ tx.amount | money }}</span
-                >
+                <span class="num tx-amount" [class.struck]="tx.status === 'DECLINED'">{{
+                  tx.amount * -1 | money
+                }}</span>
                 @if (tx.status === 'DECLINED') {
                   <span class="badge bad" [title]="tx.declineMessage ?? ''">{{
                     declineLabel(tx.declineReason)

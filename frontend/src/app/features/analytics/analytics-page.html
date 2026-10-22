@@ -1,8 +1,12 @@
 <div class="page">
   <div class="page-header">
     <div>
-      <h1>Analítica</h1>
-      <p>En qué se va tu dinero. Lo que mueves a tus huchas no cuenta como gasto.</p>
+      <span class="eyebrow">Analítica</span>
+      <h1>En qué se va tu dinero</h1>
+      <p>
+        Solo cuenta lo que entra y sale de la cuenta principal. Mover dinero a tus huchas no es
+        gastar.
+      </p>
     </div>
     <div class="segmented" role="group" aria-label="Periodo">
       @for (option of periods; track option) {
@@ -20,17 +24,21 @@
   @if (summary(); as s) {
     <div class="kpis">
       <div class="kpi">
-        <span>Ingresos este mes</span>
+        <span>Ingresos · {{ currentMonth }}</span>
         <strong class="positive">{{ s.thisMonth.income | money }}</strong>
-        <small>Media: {{ avgIncome() | money }}/mes</small>
+        <small
+          >Media: <span class="num">{{ avgIncome() | money }}</span> al mes</small
+        >
       </div>
       <div class="kpi">
-        <span>Gastos este mes</span>
+        <span>Gastos · {{ currentMonth }}</span>
         <strong>{{ s.thisMonth.expenses | money }}</strong>
-        <small>Media: {{ avgExpenses() | money }}/mes</small>
+        <small
+          >Media: <span class="num">{{ avgExpenses() | money }}</span> al mes</small
+        >
       </div>
       <div class="kpi">
-        <span>Balance del mes</span>
+        <span>Balance</span>
         <strong [class.positive]="s.thisMonth.net > 0" [class.negative]="s.thisMonth.net < 0">{{
           s.thisMonth.net | money: true
         }}</strong>
@@ -43,61 +51,82 @@
       </div>
     </div>
 
-    <div class="grid">
-      <section class="card wide">
-        <div class="card-header">
-          <div>
-            <h2>Ingresos y gastos</h2>
-            <p>Últimos {{ months() }} meses</p>
-          </div>
+    <section class="card flows" aria-labelledby="flows-title">
+      <div class="card-header">
+        <div>
+          <h2 id="flows-title">Ingresos y gastos</h2>
+          <p>Últimos {{ months() }} meses</p>
         </div>
+      </div>
+      <div class="flows-body">
         <app-bar-chart
           [data]="monthBars()"
           [seriesLabels]="['Ingresos', 'Gastos']"
           ariaLabel="Ingresos y gastos por mes"
         />
-      </section>
+        <div class="table-wrap">
+          <table class="table statement">
+            <thead>
+              <tr>
+                <th>Mes</th>
+                <th class="right">Ingresos</th>
+                <th class="right">Gastos</th>
+                <th class="right">Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (m of s.months; track m.month) {
+                <tr>
+                  <td>{{ monthName(m.month) }}</td>
+                  <td class="right num">{{ m.income | money }}</td>
+                  <td class="right num">{{ m.expenses | money }}</td>
+                  <td
+                    class="right num"
+                    [class.positive]="m.income - m.expenses > 0"
+                    [class.negative]="m.income - m.expenses < 0"
+                  >
+                    {{ m.income - m.expenses | money: true }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>Total</td>
+                <td class="right num">
+                  <span class="total">{{ totals().income | money }}</span>
+                </td>
+                <td class="right num">
+                  <span class="total">{{ totals().expenses | money }}</span>
+                </td>
+                <td class="right num">
+                  <span class="total">{{ totals().income - totals().expenses | money: true }}</span>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
 
-      <section class="card">
+    <div class="grid">
+      <section class="card" aria-labelledby="categories-title">
         <div class="card-header">
           <div>
-            <h2>Gasto por categoría</h2>
+            <h2 id="categories-title">Gasto por categoría</h2>
             <p>{{ currentMonth }}</p>
           </div>
+          <strong class="num">{{ s.thisMonth.expenses | money }}</strong>
         </div>
         @if (s.categories.length > 0) {
-          <div class="donut-wrap">
-            <app-donut-chart
-              [slices]="slices()"
-              [centerValue]="s.thisMonth.expenses | money"
-              centerLabel="este mes"
-              [size]="190"
-              ariaLabel="Gasto por categoría este mes"
-            />
-          </div>
+          <app-split-bar [data]="parts()" ariaLabel="Reparto del gasto por categoría" />
           <ul class="categories">
             @for (c of s.categories; track c.category) {
               <li>
-                <span
-                  class="cat-icon"
-                  [style.color]="meta[c.category].color"
-                  [style.background]="meta[c.category].color + '1f'"
-                >
-                  <app-icon [name]="meta[c.category].icon" [size]="16" />
-                </span>
-                <div class="grow">
-                  <div class="row between">
-                    <span>{{ meta[c.category].label }}</span>
-                    <strong class="num">{{ c.amount | money }}</strong>
-                  </div>
-                  <span class="bar"
-                    ><span
-                      [style.width.%]="c.share"
-                      [style.background]="meta[c.category].color"
-                    ></span
-                  ></span>
-                </div>
+                <i class="swatch" [style.background]="meta[c.category].color"></i>
+                <span class="grow">{{ meta[c.category].label }}</span>
                 <span class="share num">{{ c.share | percent }}</span>
+                <span class="num amount">{{ c.amount | money }}</span>
               </li>
             }
           </ul>
@@ -106,49 +135,48 @@
         }
       </section>
 
-      <section class="card">
+      <section class="card" aria-labelledby="balance-title">
         <div class="card-header">
           <div>
-            <h2>Evolución del saldo</h2>
-            <p>Saldo total (cuenta + huchas), últimos 90 días</p>
+            <h2 id="balance-title">Evolución del saldo</h2>
+            <p>Cuenta y huchas, últimos 90 días</p>
           </div>
           <strong class="num">{{ s.thisMonth.totalBalance | money }}</strong>
         </div>
         <app-line-chart
           [points]="history()"
-          [height]="240"
+          [height]="220"
           ariaLabel="Saldo total de los últimos 90 días"
         />
-        <div class="history-foot small muted">
-          <span
-            >Hace 90 días: <b class="num">{{ history()[0]?.value ?? 0 | money }}</b></span
-          >
-          <span [class.positive]="historyChange() > 0" [class.negative]="historyChange() < 0">
-            {{ historyChange() | money: true }}
-          </span>
-        </div>
+        <dl class="history-foot">
+          <div>
+            <dt>Hace 90 días</dt>
+            <dd class="num">{{ history()[0]?.value ?? 0 | money }}</dd>
+          </div>
+          <div>
+            <dt>Variación</dt>
+            <dd
+              class="num"
+              [class.positive]="historyChange() > 0"
+              [class.negative]="historyChange() < 0"
+            >
+              {{ historyChange() | money: true }}
+            </dd>
+          </div>
+        </dl>
       </section>
+    </div>
 
-      <section class="card wide insights">
-        <h2>Resumen</h2>
-        <ul>
-          @for (insight of insights(); track insight.text) {
-            <li>
-              <span class="insight-icon" [class]="'insight-icon ' + insight.tone"
-                ><app-icon [name]="insight.icon" [size]="18"
-              /></span>
-              <span>{{ insight.text }}</span>
-            </li>
-          }
-        </ul>
-      </section>
-    </div>
+    <section class="card notes" aria-labelledby="notes-title">
+      <h2 id="notes-title">Notas del periodo</h2>
+      <ol>
+        @for (insight of insights(); track insight.text) {
+          <li [class]="insight.tone">{{ insight.text }}</li>
+        }
+      </ol>
+    </section>
   } @else {
-    <div class="kpis">
-      @for (i of [1, 2, 3, 4]; track i) {
-        <span class="skeleton" style="height: 98px; border-radius: var(--radius)"></span>
-      }
-    </div>
-    <span class="skeleton" style="height: 320px; border-radius: var(--radius)"></span>
+    <span class="skeleton" style="height: 96px"></span>
+    <span class="skeleton" style="height: 320px"></span>
   }
 </div>

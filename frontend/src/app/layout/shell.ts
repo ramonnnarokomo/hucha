@@ -16,7 +16,10 @@ interface NavItem {
   label: string;
   icon: string;
   exact?: boolean;
+  /** Va en la barra inferior del móvil. */
   mobile?: boolean;
+  /** No va en la navegación principal, sino en el menú de usuario (avisos ya tiene su campana). */
+  secondary?: boolean;
 }
 
 const CUSTOMER_NAV: NavItem[] = [
@@ -27,14 +30,14 @@ const CUSTOMER_NAV: NavItem[] = [
   { path: '/analitica', label: 'Analítica', icon: 'chart', mobile: true },
   { path: '/transferencias', label: 'Transferencias', icon: 'swap' },
   { path: '/beneficiarios', label: 'Beneficiarios', icon: 'users' },
-  { path: '/avisos', label: 'Avisos', icon: 'bell' },
-  { path: '/seguridad', label: 'Seguridad', icon: 'shield' },
+  { path: '/avisos', label: 'Avisos', icon: 'bell', secondary: true },
+  { path: '/seguridad', label: 'Seguridad', icon: 'shield', secondary: true },
 ];
 
 const ADMIN_NAV: NavItem[] = [
   { path: '/admin', label: 'Back-office', icon: 'bank', mobile: true },
-  { path: '/avisos', label: 'Avisos', icon: 'bell', mobile: true },
-  { path: '/seguridad', label: 'Seguridad', icon: 'shield', mobile: true },
+  { path: '/avisos', label: 'Avisos', icon: 'bell', mobile: true, secondary: true },
+  { path: '/seguridad', label: 'Seguridad', icon: 'shield', mobile: true, secondary: true },
 ];
 
 @Component({
@@ -51,7 +54,13 @@ export class Shell {
   private readonly api = inject(BankApi);
 
   protected readonly nav = computed(() => (this.auth.isAdmin() ? ADMIN_NAV : CUSTOMER_NAV));
+  protected readonly primaryNav = computed(() => this.nav().filter((item) => !item.secondary));
   protected readonly mobileNav = computed(() => this.nav().filter((item) => item.mobile));
+  /** Menú de usuario: lo secundario y, en el móvil, lo que no cabe en la barra inferior. */
+  protected readonly menuNav = computed(() =>
+    this.nav().filter((item) => item.secondary || !item.mobile),
+  );
+
   protected readonly initials = computed(() => initials(this.auth.user()?.fullName));
 
   protected readonly panelOpen = signal(false);
@@ -85,23 +94,5 @@ export class Shell {
   protected markAllRead(): void {
     this.notifications.markAllRead();
     this.latest.update((list) => list.map((n) => ({ ...n, read: true })));
-  }
-
-  protected iconFor(notification: AppNotification): string {
-    switch (notification.type) {
-      case 'TRANSFER_RECEIVED':
-        return 'arrow-in';
-      case 'CARD_DECLINED':
-        return 'card';
-      case 'SCA_CODE':
-        return 'lock';
-      case 'ACCOUNT_FROZEN':
-      case 'ACCOUNT_UNFROZEN':
-        return 'snowflake';
-      case 'SECURITY':
-        return 'shield';
-      default:
-        return 'bell';
-    }
   }
 }

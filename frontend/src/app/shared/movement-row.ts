@@ -2,61 +2,76 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { ENTRY_TYPES, categoryMeta, movementTitle } from '../core/format';
 import { Movement } from '../core/models';
 import { MoneyPipe, TimePipe } from '../core/pipes';
-import { Icon } from './icon';
 
-/** Fila de movimiento: icono de la categoría, comercio o concepto, y el importe con signo. */
+/**
+ * Línea de extracto: hora, concepto con su categoría y el importe en su columna. La categoría se
+ * marca con una muestra de color pequeña, no con un icono en un cuadrado.
+ */
 @Component({
   selector: 'app-movement-row',
-  imports: [Icon, MoneyPipe, TimePipe],
+  imports: [MoneyPipe, TimePipe],
   template: `
-    <span class="cat" [style.color]="meta().color" [style.background]="meta().color + '1f'">
-      <app-icon [name]="meta().icon" [size]="19" />
-    </span>
+    <span class="time num">{{ movement().occurredAt | time }}</span>
     <div class="grow">
       <div class="title truncate">{{ title() }}</div>
-      <div class="sub truncate">{{ subtitle() }} · {{ movement().occurredAt | time }}</div>
+      <div class="sub truncate">
+        <i class="swatch" [style.background]="meta().color"></i>{{ subtitle() }}
+      </div>
     </div>
     <div class="amounts">
       <div class="amount num" [class.positive]="movement().amount > 0">
         {{ movement().amount | money: true }}
       </div>
       @if (showBalance()) {
-        <div class="sub num">{{ movement().balanceAfter | money }}</div>
+        <div class="balance num">{{ movement().balanceAfter | money }}</div>
       }
     </div>
   `,
   styles: `
     :host {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       gap: 14px;
       min-width: 0;
     }
-    .cat {
-      display: grid;
-      place-items: center;
+    .time {
       flex: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
+      width: 3.2em;
+      font-size: 0.78rem;
+      color: var(--muted);
     }
     .grow {
       flex: 1;
       min-width: 0;
     }
     .title {
-      font-weight: 600;
+      font-weight: 500;
     }
     .sub {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 1px;
       font-size: 0.8rem;
       color: var(--muted);
+    }
+    .swatch {
+      flex: none;
+      width: 7px;
+      height: 7px;
     }
     .amounts {
       text-align: right;
     }
     .amount {
-      font-weight: 600;
+      font-size: 0.92rem;
+      font-weight: 500;
       white-space: nowrap;
+    }
+    .balance {
+      margin-top: 1px;
+      font-size: 0.75rem;
+      color: var(--muted);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

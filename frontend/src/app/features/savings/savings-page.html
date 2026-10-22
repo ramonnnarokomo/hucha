@@ -1,6 +1,7 @@
 <div class="page">
   <div class="page-header">
     <div>
+      <span class="eyebrow">Ahorro</span>
       <h1>Huchas</h1>
       <p>
         Aparta dinero para tus objetivos. Mover dinero entre tu cuenta y tus huchas es instantáneo.
@@ -12,7 +13,7 @@
       (click)="openCreate()"
       [disabled]="pots().length >= 10"
     >
-      <app-icon name="plus" [size]="18" /> Nueva hucha
+      <app-icon name="plus" [size]="16" /> Nueva hucha
     </button>
   </div>
 
@@ -25,7 +26,7 @@
     <div class="kpi">
       <span>Objetivos</span>
       <strong>{{ totalGoals() | money }}</strong>
-      <small>{{ overallProgress() }}% conseguido</small>
+      <small>{{ overallProgress() }} % conseguido</small>
     </div>
     <div class="kpi">
       <span>Disponible en {{ checking()?.name ?? 'tu cuenta' }}</span>
@@ -45,7 +46,9 @@
       @for (pot of pots(); track pot.id) {
         <article class="pot card" [style.--pot]="color(pot)">
           <div class="pot-top">
-            <span class="pot-icon"><app-icon [name]="pot.icon ?? 'piggy'" [size]="22" /></span>
+            <span class="pot-icon"
+              ><app-icon [name]="pot.icon ?? 'piggy'" [size]="18" [stroke]="1.6"
+            /></span>
             <div class="grow">
               <h2 class="truncate">{{ pot.name }}</h2>
               @if (pot.status === 'FROZEN') {
@@ -86,7 +89,7 @@
                     >Faltan <b class="num">{{ pot.goalAmount - pot.balance | money }}</b></span
                   >
                 }
-                <span class="muted num">{{ progress(pot) }}% de {{ pot.goalAmount | money }}</span>
+                <span class="muted num">{{ progress(pot) }} % de {{ pot.goalAmount | money }}</span>
               </div>
             </div>
           } @else {
@@ -100,7 +103,7 @@
               (click)="openMove(pot, 'deposit')"
               [disabled]="pot.status !== 'ACTIVE'"
             >
-              <app-icon name="plus" [size]="15" /> Meter
+              Meter dinero
             </button>
             <button
               type="button"
@@ -108,14 +111,14 @@
               (click)="openMove(pot, 'withdraw')"
               [disabled]="pot.status !== 'ACTIVE' || pot.balance <= 0"
             >
-              <app-icon name="download" [size]="15" /> Sacar
+              Sacar
             </button>
           </div>
         </article>
       }
       @if (pots().length < 10) {
         <button type="button" class="pot new" (click)="openCreate()">
-          <app-icon name="plus" [size]="26" />
+          <span class="plus num">+</span>
           <span>Crear una hucha</span>
           <small class="muted">Viajes, imprevistos, un capricho...</small>
         </button>
@@ -210,7 +213,7 @@
             (m.direction === 'deposit' ? checking()?.balance : m.pot.balance) ?? 0 | money
           }}</span>
         </div>
-        <app-icon name="send" [size]="20" class="muted" />
+        <span class="muted num" aria-hidden="true">→</span>
         <div class="flow-end">
           <span class="small muted">A</span>
           <strong class="truncate">{{
@@ -232,7 +235,7 @@
           autocomplete="off"
           [class.invalid]="!!moveError()"
         />
-        <div class="chips center">
+        <div class="chips">
           @for (value of [10, 50, 100]; track value) {
             <button type="button" class="chip" (click)="moveAmount.setValue(value.toString())">
               {{ value }} €
@@ -259,7 +262,7 @@
           }
         </div>
         @if (moveError(); as message) {
-          <span class="error-text center">{{ message }}</span>
+          <span class="error-text">{{ message }}</span>
         }
       </div>
       <div class="modal-actions">

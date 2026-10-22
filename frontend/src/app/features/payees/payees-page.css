@@ -31,8 +31,8 @@
 }
 
 .avatar.brand {
-  background: var(--brand-soft);
-  color: var(--brand-text);
+  border-color: var(--accent);
+  color: var(--accent-text);
 }
 
 .actions {

@@ -4,19 +4,19 @@
 
 .grid-top {
   display: grid;
-  gap: 24px;
+  gap: 28px;
   grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
   align-items: start;
 }
 
 .grid-bottom {
   display: grid;
-  gap: 20px;
+  gap: 24px;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
   align-items: start;
 }
 
-/* ---------- Tarjeta visual ---------- */
+/* ---------- Tarjeta: plástico negro mate, sin degradados ---------- */
 
 .card-visual-wrap {
   display: grid;
@@ -30,25 +30,28 @@
   gap: 14px;
   aspect-ratio: 1.586;
   padding: 22px 24px;
-  border-radius: 20px;
+  border-radius: 12px;
   overflow: hidden;
-  color: #fff;
-  background:
-    radial-gradient(120% 90% at 100% 0%, rgb(255 255 255 / 0.18), transparent 55%),
-    radial-gradient(80% 70% at 0% 100%, rgb(45 212 191 / 0.35), transparent 60%),
-    linear-gradient(135deg, var(--hero-from), var(--hero-to));
+  color: #f2efe7;
+  background: #1f1e1a;
   box-shadow:
-    0 18px 40px -12px rgb(6 78 72 / 0.55),
-    inset 0 1px 0 rgb(255 255 255 / 0.15);
-  transition: filter 0.3s;
+    inset 0 0 0 1px rgb(255 255 255 / 0.06),
+    0 1px 0 rgb(0 0 0 / 0.2);
 }
 
-.card-visual.frozen {
-  filter: grayscale(0.85) brightness(0.95);
+/* Filete grabado a 8 px del borde. */
+.card-visual::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgb(255 255 255 / 0.07);
+  border-radius: 7px;
+  pointer-events: none;
 }
 
-.card-visual.cancelled {
-  filter: grayscale(1) opacity(0.55);
+[data-theme='dark'] .card-visual {
+  background: #2a2823;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
 }
 
 .cv-top {
@@ -61,33 +64,33 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 .cv-type {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  opacity: 0.8;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  opacity: 0.7;
 }
 
 .cv-chip {
-  width: 44px;
-  height: 32px;
-  border-radius: 7px;
+  width: 40px;
+  height: 30px;
+  border: 1px solid rgb(242 239 231 / 0.45);
+  border-radius: 5px;
   background:
-    linear-gradient(90deg, transparent 45%, rgb(0 0 0 / 0.18) 45% 55%, transparent 55%),
-    linear-gradient(0deg, transparent 45%, rgb(0 0 0 / 0.18) 45% 55%, transparent 55%),
-    linear-gradient(135deg, #fde68a, #d4a017);
+    linear-gradient(90deg, transparent 48%, rgb(242 239 231 / 0.35) 48% 52%, transparent 52%),
+    linear-gradient(0deg, transparent 48%, rgb(242 239 231 / 0.35) 48% 52%, transparent 52%),
+    rgb(242 239 231 / 0.12);
 }
 
 .cv-number {
   align-self: end;
-  font-size: clamp(1.05rem, 2.6vw, 1.4rem);
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  letter-spacing: 0.08em;
 }
 
 .cv-bottom {
@@ -103,33 +106,50 @@
 }
 
 .cv-label {
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 .cv-value {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 500;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.card-visual.frozen .cv-top,
+.card-visual.frozen .cv-chip,
+.card-visual.frozen .cv-number,
+.card-visual.frozen .cv-bottom,
+.card-visual.cancelled .cv-top,
+.card-visual.cancelled .cv-chip,
+.card-visual.cancelled .cv-number,
+.card-visual.cancelled .cv-bottom {
+  opacity: 0.4;
+}
+
+/* Congelada: rayado en diagonal y un sello de goma encima. */
 .cv-overlay {
   position: absolute;
   inset: 0;
   display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 8px;
-  background: rgb(15 23 42 / 0.55);
-  backdrop-filter: blur(4px);
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: 0.04em;
+  place-items: center;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgb(242 239 231 / 0.07) 0 2px,
+    transparent 2px 10px
+  );
+}
+
+.cv-overlay .stamp {
+  color: #e7a197;
+  font-size: 1.1rem;
+  background: rgb(31 30 26 / 0.7);
 }
 
 .spent {
@@ -138,7 +158,7 @@
 }
 
 .spent .progress {
-  height: 8px;
+  height: 6px;
 }
 
 .spent .progress.warn span {
@@ -150,31 +170,20 @@
 .controls {
   display: grid;
   gap: 0;
-  padding: 8px 20px;
+  padding: 4px 20px;
 }
 
 .control {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   padding: 16px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--rule);
 }
 
 .control.column {
   display: grid;
   gap: 12px;
-}
-
-.control-icon {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--brand-soft);
-  color: var(--brand-text);
 }
 
 .control p {
@@ -183,11 +192,12 @@
 
 .limit-value {
   font-size: 1.1rem;
+  font-weight: 500;
 }
 
 .range {
   width: 100%;
-  accent-color: var(--brand);
+  accent-color: var(--ink);
 }
 
 .row.end {
@@ -196,7 +206,7 @@
 
 .cancel-btn {
   justify-self: start;
-  margin: 16px 0 10px;
+  margin: 16px 0 14px;
 }
 
 /* ---------- Simulador y operaciones ---------- */
@@ -207,17 +217,15 @@
   grid-template-columns: 1fr 1fr;
 }
 
-.cat {
-  display: grid;
-  place-items: center;
+.swatch {
   flex: none;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
+  width: 8px;
+  height: 8px;
+  align-self: center;
 }
 
 .tx-title {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .tx-right {
@@ -227,7 +235,7 @@
 }
 
 .tx-amount {
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
 }
 

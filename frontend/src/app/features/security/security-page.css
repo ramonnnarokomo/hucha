@@ -16,13 +16,13 @@
   display: grid;
   place-items: center;
   flex: none;
-  width: 60px;
-  height: 60px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
-  color: #fff;
-  font-size: 1.3rem;
-  font-weight: 700;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 
 .strength {
@@ -60,28 +60,23 @@
 }
 
 .device-icon {
-  display: grid;
-  place-items: center;
+  display: inline-flex;
   flex: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--surface-hover);
-  color: var(--text-2);
+  color: var(--muted);
 }
 
 .device-icon.current {
-  background: var(--positive-soft);
   color: var(--positive);
 }
 
-.tips h2 {
-  margin-bottom: 12px;
+.tips .eyebrow {
+  display: block;
+  margin-bottom: 10px;
 }
 
 .tips ul {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -90,14 +85,13 @@
 }
 
 .tips li {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule);
 }
 
-.tips app-icon {
-  color: var(--brand-text);
-  margin-top: 1px;
+.tips li:first-child {
+  padding-top: 0;
+  border-top: 0;
 }
 
 @media (max-width: 900px) {

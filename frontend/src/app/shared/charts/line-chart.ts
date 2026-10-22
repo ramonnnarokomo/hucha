@@ -20,12 +20,6 @@ export interface LinePoint {
         (mousemove)="onMove($event)"
         (mouseleave)="hover.set(null)"
       >
-        <defs>
-          <linearGradient [attr.id]="gradientId" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="var(--brand)" stop-opacity="0.28" />
-            <stop offset="100%" stop-color="var(--brand)" stop-opacity="0" />
-          </linearGradient>
-        </defs>
         @if (showAxis()) {
           @for (tick of axis(); track tick.value) {
             <line
@@ -40,13 +34,12 @@ export interface LinePoint {
             </text>
           }
         }
-        <path [attr.d]="area()" [attr.fill]="'url(#' + gradientId + ')'" />
         <path
           [attr.d]="line()"
           fill="none"
-          stroke="var(--brand)"
-          stroke-width="2.5"
-          stroke-linecap="round"
+          [attr.stroke]="color()"
+          stroke-width="1.75"
+          stroke-linejoin="round"
         />
         @if (hoverPoint(); as point) {
           <line
@@ -59,10 +52,10 @@ export interface LinePoint {
           <circle
             [attr.cx]="point.x"
             [attr.cy]="point.y"
-            r="4.5"
+            r="3.5"
             fill="var(--surface)"
-            stroke="var(--brand)"
-            stroke-width="2.5"
+            [attr.stroke]="color()"
+            stroke-width="1.75"
           />
         }
       </svg>
@@ -78,16 +71,14 @@ export interface LinePoint {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LineChart {
-  private static counter = 0;
-
   readonly points = input.required<LinePoint[]>();
   readonly height = input(200);
   readonly showAxis = input(true);
   readonly ariaLabel = input('Evolución');
+  readonly color = input('var(--chart-1)');
 
   protected readonly width = observeWidth(600);
   protected readonly padTop = 12;
-  protected readonly gradientId = `line-gradient-${++LineChart.counter}`;
   protected readonly hover = signal<number | null>(null);
   protected readonly padLeft = computed(() => (this.showAxis() ? 56 : 0));
   protected readonly padBottom = computed(() => (this.showAxis() ? 8 : 2));
@@ -108,13 +99,6 @@ export class LineChart {
   });
 
   protected readonly line = computed(() => smoothPath(this.coords()));
-
-  protected readonly area = computed(() => {
-    const coords = this.coords();
-    if (coords.length === 0) return '';
-    const bottom = this.height() - this.padBottom();
-    return `${smoothPath(coords)} L${coords[coords.length - 1]!.x},${bottom} L${coords[0]!.x},${bottom} Z`;
-  });
 
   protected readonly axis = computed(() => {
     const { min, max, ticks } = this.bounds();

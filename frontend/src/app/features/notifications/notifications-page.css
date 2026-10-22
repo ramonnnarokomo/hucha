@@ -7,35 +7,29 @@
   align-items: center;
   gap: 6px;
   margin-left: 8px;
-  font-size: 0.82rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
 .live i {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  width: 6px;
+  height: 6px;
   background: var(--warning);
 }
 
 .live.on i {
   background: var(--positive);
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--positive) 60%, transparent);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  70% {
-    box-shadow: 0 0 0 7px transparent;
-  }
 }
 
 .notification {
-  align-items: flex-start;
+  align-items: baseline;
 }
 
 .notification.unread {
-  background: color-mix(in srgb, var(--brand) 5%, transparent);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .grow > span:not(.row) {
@@ -48,6 +42,8 @@
 
 .when {
   flex: none;
+  font-family: var(--mono);
+  font-size: 0.75rem;
 }
 
 .body {
@@ -57,41 +53,42 @@
   line-height: 1.45;
 }
 
-.notification:not(.unread) strong {
+.notification strong {
+  font-weight: 500;
+}
+
+.notification.unread strong {
   font-weight: 600;
 }
 
-.type-icon {
-  display: grid;
-  place-items: center;
+/* Etiqueta del tipo de aviso, en la columna de la izquierda. */
+.type {
   flex: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--brand-soft);
-  color: var(--brand-text);
+  width: 84px;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
-.type-icon.good {
-  background: var(--positive-soft);
+.type.good {
   color: var(--positive);
 }
 
-.type-icon.bad {
-  background: var(--negative-soft);
+.type.bad {
   color: var(--negative);
 }
 
-.type-icon.warn {
-  background: var(--warning-soft);
+.type.warn {
   color: var(--warning);
 }
 
-.dot {
-  flex: none;
-  width: 9px;
-  height: 9px;
-  margin-top: 6px;
-  border-radius: 50%;
-  background: var(--brand);
+@media (max-width: 600px) {
+  .type {
+    width: auto;
+    position: absolute;
+    visibility: hidden;
+  }
 }

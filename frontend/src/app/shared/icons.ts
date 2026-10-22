@@ -3,6 +3,8 @@ export const ICONS: Record<string, string> = {
   home: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
   send: '<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4z"/>',
   card: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/>',
+  // Marca de Hucha: una moneda sobre la ranura de una caja de caudales.
+  logo: '<circle cx="12" cy="5.2" r="2.6"/><rect x="3.5" y="10" width="17" height="10.5" rx="1"/><path d="M9 14h6"/>',
   piggy:
     '<path d="M4.5 12.5c0-3.6 3.4-6.5 7.5-6.5h2c3.6 0 6.5 2.5 6.5 5.7v.8l1.3.8-1.3 1.9v2.3h-2.8l-1-1.8H10l-1 1.8H6.2v-2.6C5.1 14.2 4.5 13.4 4.5 12.5z"/><path d="M10 6.3V4.8"/><path d="M4.5 12H3"/><circle cx="16.3" cy="10.8" r=".7" fill="currentColor"/>',
   chart: '<path d="M4 20V11"/><path d="M10 20V5"/><path d="M16 20v-7"/><path d="M21 20H3"/>',
@@ -21,6 +23,7 @@ export const ICONS: Record<string, string> = {
     '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  chevron: '<path d="M6 9l6 6 6-6"/>',
   'chevron-right': '<path d="M9 5l7 7-7 7"/>',
   'chevron-left': '<path d="M15 5l-7 7 7 7"/>',
   'chevron-down': '<path d="M5 9l7 7 7-7"/>',

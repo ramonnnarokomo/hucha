@@ -16,8 +16,9 @@ const DEMO_PASSWORD = 'Demo1234';
     <section class="form-side">
       <form class="form-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <header>
+          <span class="eyebrow">Banca digital · Demo</span>
           <h1>Entrar</h1>
-          <p>Accede a tu banca digital.</p>
+          <p>Con tu email y tu contraseña, o con uno de los usuarios de prueba.</p>
         </header>
 
         @if (expired()) {
@@ -60,20 +61,17 @@ const DEMO_PASSWORD = 'Demo1234';
         </button>
 
         <div class="demo">
-          <span class="small muted"
-            >¿Solo quieres verla? Entra con un usuario de demostración:</span
-          >
-          <div class="demo-buttons">
-            <button type="button" class="btn btn-sm" (click)="demo('lucia@hucha.dev')">
-              Lucía (cliente)
-            </button>
-            <button type="button" class="btn btn-sm" (click)="demo('marcos@hucha.dev')">
-              Marcos (cliente)
-            </button>
-            <button type="button" class="btn btn-sm" (click)="demo('admin@hucha.dev')">
-              Administrador
-            </button>
+          <div class="demo-title">
+            <span class="eyebrow">Usuarios de demostración</span>
+            <span class="eyebrow">Clave: <span class="num">Demo1234</span></span>
           </div>
+          @for (user of demoUsers; track user.email) {
+            <button type="button" class="demo-row" (click)="demo(user.email)">
+              <span class="who">{{ user.name }}</span>
+              <span class="mail num">{{ user.email }}</span>
+              <span class="go">Entrar como {{ user.role }} →</span>
+            </button>
+          }
         </div>
 
         <p class="switch-link">
@@ -92,6 +90,12 @@ export class LoginPage {
   /** Query params enlazados como inputs (withComponentInputBinding). */
   readonly redirect = input<string>();
   readonly expired = input<string>();
+
+  protected readonly demoUsers = [
+    { name: 'Lucía Fernández', email: 'lucia@hucha.dev', role: 'cliente' },
+    { name: 'Marcos Ruiz', email: 'marcos@hucha.dev', role: 'cliente' },
+    { name: 'Equipo Hucha', email: 'admin@hucha.dev', role: 'administrador' },
+  ];
 
   protected readonly loading = signal(false);
   protected readonly error = signal<ApiError | null>(null);

@@ -1,7 +1,6 @@
 <div class="page">
   @if (notFound()) {
     <div class="card empty">
-      <app-icon name="alert" [size]="28" />
       <strong>No encontramos esta cuenta</strong>
       <span>Puede que no exista o que no sea tuya.</span>
       <a routerLink="/" class="btn btn-sm">Volver al inicio</a>
@@ -9,7 +8,7 @@
   } @else {
     <div class="page-header">
       <div>
-        <a routerLink="/" class="back small"><app-icon name="home" [size]="15" /> Inicio</a>
+        <a routerLink="/" class="back eyebrow">← Inicio</a>
         <h1>{{ account()?.name ?? 'Cuenta' }}</h1>
         @if (account(); as a) {
           <p class="iban-line">
@@ -27,16 +26,18 @@
 
     <div class="top-grid">
       <section class="card balance-card" aria-label="Saldo">
-        <span class="small muted">Saldo disponible</span>
+        <span class="eyebrow">Saldo disponible</span>
         @if (account(); as a) {
-          <strong class="balance num">{{ a.balance | money }}</strong>
+          <strong class="balance num"
+            ><span class="total">{{ a.balance | money }}</span></strong
+          >
           <div class="row wrap">
             @switch (a.status) {
               @case ('ACTIVE') {
                 <span class="badge ok">Activa</span>
               }
               @case ('FROZEN') {
-                <span class="badge bad"><app-icon name="snowflake" [size]="13" /> Congelada</span>
+                <span class="badge bad">Congelada</span>
               }
               @default {
                 <span class="badge">Cerrada</span>
@@ -211,7 +212,6 @@
             </ul>
           } @empty {
             <div class="empty">
-              <app-icon [name]="hasFilters() ? 'filter' : 'activity'" [size]="28" />
               <span>{{
                 hasFilters()
                   ? 'Ningún movimiento coincide con los filtros.'

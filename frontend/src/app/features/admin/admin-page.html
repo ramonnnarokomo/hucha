@@ -1,6 +1,7 @@
 <div class="page">
   <div class="page-header">
     <div>
+      <span class="eyebrow">Administración</span>
       <h1>Back-office</h1>
       <p>Operaciones del banco, clientes y registro de auditoría.</p>
     </div>
@@ -71,7 +72,7 @@
             <app-bar-chart
               [data]="volumeBars()"
               [seriesLabels]="['Volumen']"
-              [colors]="['var(--brand)']"
+              [colors]="['var(--chart-1)']"
               ariaLabel="Volumen de transferencias por día"
             />
           </section>
@@ -161,7 +162,7 @@
                     }
                   </td>
                   <td class="right num">{{ u.totalBalance | money }}</td>
-                  <td class="nowrap">{{ u.createdAt | shortDate }}</td>
+                  <td class="nowrap num small">{{ u.createdAt | shortDate }}</td>
                   <td class="right">
                     <button type="button" class="btn btn-sm" (click)="openUser(u)">Ver</button>
                   </td>
@@ -213,7 +214,7 @@
             <tbody>
               @for (e of audit(); track e.id) {
                 <tr>
-                  <td class="nowrap small">
+                  <td class="nowrap small num">
                     {{ e.occurredAt | shortDate }} {{ e.occurredAt | time }}
                   </td>
                   <td>
@@ -223,7 +224,7 @@
                   </td>
                   <td class="small">{{ e.actorEmail ?? 'sistema' }}</td>
                   <td class="small details">{{ detailText(e) }}</td>
-                  <td class="small muted nowrap">{{ e.ipAddress ?? '—' }}</td>
+                  <td class="small muted nowrap num">{{ e.ipAddress ?? '—' }}</td>
                 </tr>
               } @empty {
                 <tr>

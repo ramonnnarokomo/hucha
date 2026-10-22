@@ -19,7 +19,7 @@ import { ApiError, toApiError } from '../../core/api-error';
 import { initials, parseAmount } from '../../core/format';
 import { formatIban, isValidIban, normalizeIban, shortIban } from '../../core/iban';
 import { Account, IbanCheck, Payee, Transfer } from '../../core/models';
-import { IbanPipe, MoneyPipe } from '../../core/pipes';
+import { IbanPipe, LongDateTimePipe, MoneyPipe } from '../../core/pipes';
 import { Icon } from '../../shared/icon';
 
 type Step = 'recipient' | 'amount' | 'review' | 'sca' | 'done';
@@ -43,7 +43,7 @@ const SCA_NEW_PAYEE_THRESHOLD = 30;
 
 @Component({
   selector: 'app-transfer-page',
-  imports: [ReactiveFormsModule, RouterLink, Icon, MoneyPipe, IbanPipe],
+  imports: [ReactiveFormsModule, RouterLink, Icon, MoneyPipe, IbanPipe, LongDateTimePipe],
   templateUrl: './transfer-page.html',
   styleUrl: './transfer-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

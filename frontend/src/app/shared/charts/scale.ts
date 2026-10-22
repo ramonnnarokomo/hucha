@@ -45,21 +45,3 @@ export function smoothPath(points: { x: number; y: number }[]): string {
   }
   return d;
 }
-
-/** Arcos de un donut: cada porción como (longitud, desplazamiento) de stroke-dasharray sobre la circunferencia. */
-export function donutSegments(
-  values: number[],
-  circumference: number,
-  gap = 2,
-): { length: number; offset: number }[] {
-  const total = values.reduce((sum, v) => sum + v, 0);
-  if (total <= 0) return [];
-  let start = 0;
-  return values.map((value) => {
-    const full = (value / total) * circumference;
-    const length = Math.max(0, full - (values.length > 1 ? gap : 0));
-    const segment = { length, offset: -start };
-    start += full;
-    return segment;
-  });
-}

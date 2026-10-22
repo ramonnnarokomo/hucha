@@ -6,19 +6,18 @@ import { CATEGORIES, money, monthLong, monthShort, percent, signedMoney } from '
 import { AnalyticsSummary } from '../../core/models';
 import { MoneyPipe, PercentPipe } from '../../core/pipes';
 import { BarChart, BarGroup } from '../../shared/charts/bar-chart';
-import { DonutChart, DonutSlice } from '../../shared/charts/donut-chart';
+
 import { LineChart, LinePoint } from '../../shared/charts/line-chart';
-import { Icon } from '../../shared/icon';
+import { SplitBar, SplitPart } from '../../shared/charts/split-bar';
 
 interface Insight {
-  icon: string;
   tone: 'good' | 'warn' | '';
   text: string;
 }
 
 @Component({
   selector: 'app-analytics-page',
-  imports: [Icon, MoneyPipe, PercentPipe, BarChart, DonutChart, LineChart],
+  imports: [MoneyPipe, PercentPipe, BarChart, SplitBar, LineChart],
   templateUrl: './analytics-page.html',
   styleUrl: './analytics-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,13 +50,26 @@ export class AnalyticsPage {
     })),
   );
 
-  protected readonly slices = computed<DonutSlice[]>(() =>
+  protected readonly parts = computed<SplitPart[]>(() =>
     (this.summary()?.categories ?? []).map((c) => ({
       label: CATEGORIES[c.category].label,
       value: c.amount,
       color: CATEGORIES[c.category].color,
     })),
   );
+
+  protected readonly totals = computed(() =>
+    (this.summary()?.months ?? []).reduce(
+      (acc, m) => ({ income: acc.income + m.income, expenses: acc.expenses + m.expenses }),
+      { income: 0, expenses: 0 },
+    ),
+  );
+
+  /** "2026-08" -> "Agosto 2026", para la tabla (sin el "de" para que no parta la línea). */
+  protected monthName(yearMonth: string): string {
+    const label = monthLong(yearMonth).replace(' de ', ' ');
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
 
   protected readonly history = computed<LinePoint[]>(() =>
     (this.summary()?.balanceHistory ?? []).map((p) => ({ date: p.date, value: p.balance })),
@@ -76,7 +88,6 @@ export class AnalyticsPage {
     const top = summary.categories[0];
     if (top) {
       insights.push({
-        icon: CATEGORIES[top.category].icon,
         tone: top.share >= 50 ? 'warn' : '',
         text: `Lo que más pesa este mes es ${CATEGORIES[top.category].label.toLowerCase()}: ${money(top.amount)}, el ${percent(top.share)} de lo que has gastado.`,
       });
@@ -89,7 +100,6 @@ export class AnalyticsPage {
     }, null);
     if (best && best.net > 0) {
       insights.push({
-        icon: 'star',
         tone: 'good',
         text: `Tu mejor mes fue ${monthLong(best.month).replace(/ de \d+$/, '')}: te sobraron ${signedMoney(best.net)} entre ingresos y gastos.`,
       });
@@ -98,13 +108,11 @@ export class AnalyticsPage {
     const { totalBalance, savingsBalance } = summary.thisMonth;
     if (savingsBalance > 0 && totalBalance > 0) {
       insights.push({
-        icon: 'piggy',
         tone: 'good',
         text: `Tienes ${money(savingsBalance)} apartados en huchas, el ${percent(Math.round((savingsBalance / totalBalance) * 100))} de tu dinero.`,
       });
     } else {
       insights.push({
-        icon: 'piggy',
         tone: '',
         text: 'Aún no tienes nada en huchas. Apartar un poco cada mes ayuda a tener un colchón para imprevistos.',
       });
@@ -112,7 +120,6 @@ export class AnalyticsPage {
 
     if (closed.length > 0) {
       insights.push({
-        icon: 'chart',
         tone: '',
         text: `En los últimos ${closed.length} meses cerrados has gastado de media ${money(this.avgExpenses())} al mes.`,
       });

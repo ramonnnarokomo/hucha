@@ -27,7 +27,7 @@ describe('MovementRow', () => {
     expect(element.querySelector('.title')?.textContent).toContain('Supermercado La Plaza');
     expect(element.querySelector('.sub')?.textContent).toContain('Supermercado');
     const amount = element.querySelector('.amount')!;
-    expect(amount.textContent?.replace(/\s/g, ' ')).toContain('-39,16');
+    expect(amount.textContent?.replace(/\s/g, ' ')).toContain('\u221239,16');
     expect(amount.classList.contains('positive')).toBe(false);
   });
 
@@ -37,6 +37,6 @@ describe('MovementRow', () => {
       true,
     );
     expect(element.querySelector('.amount')!.classList.contains('positive')).toBe(true);
-    expect(element.querySelectorAll('.amounts .sub').length).toBe(1);
+    expect(element.querySelectorAll('.amounts .balance').length).toBe(1);
   });
 });

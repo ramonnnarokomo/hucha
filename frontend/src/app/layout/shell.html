@@ -1,154 +1,141 @@
-<div class="layout">
-  <aside class="sidebar">
-    <a routerLink="/" class="logo-link" aria-label="Hucha, inicio">
-      <span class="logo"><app-icon name="piggy" [size]="22" [stroke]="2" /></span>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a routerLink="/" class="wordmark" aria-label="Hucha, inicio">
+      <app-icon name="logo" [size]="22" [stroke]="1.7" />
       <span>Hucha</span>
     </a>
-    <nav aria-label="Principal">
-      @for (item of nav(); track item.path) {
+
+    <nav class="primary-nav" aria-label="Principal">
+      @for (item of primaryNav(); track item.path) {
         <a
-          class="nav-link"
           [routerLink]="item.path"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+          >{{ item.label }}</a
         >
-          <app-icon [name]="item.icon" />
-          <span>{{ item.label }}</span>
-          @if (item.path === '/avisos' && notifications.unread() > 0) {
-            <span class="count">{{ notifications.unread() }}</span>
-          }
-        </a>
       }
     </nav>
-    <div class="sidebar-footer">
-      <div class="me">
-        <span class="avatar">{{ initials() }}</span>
-        <div class="me-text">
-          <strong class="truncate">{{ auth.user()?.fullName }}</strong>
-          <span class="truncate muted small">{{ auth.user()?.email }}</span>
-        </div>
-      </div>
-      <button type="button" class="btn btn-ghost btn-sm" (click)="auth.logout()">
-        <app-icon name="logout" [size]="18" /> Salir
-      </button>
-    </div>
-  </aside>
 
-  <div class="main">
-    <header class="topbar">
-      <a routerLink="/" class="logo-link mobile-only" aria-label="Hucha, inicio">
-        <span class="logo"><app-icon name="piggy" [size]="20" [stroke]="2" /></span>
-        <span>Hucha</span>
-      </a>
-      <div class="topbar-actions">
-        @if (auth.isAdmin()) {
-          <span class="badge brand desktop-only">Administrador</span>
-        }
-        <span
-          class="live"
-          [class.on]="notifications.connected()"
-          [title]="
-            notifications.connected() ? 'Avisos en tiempo real conectados' : 'Conectando avisos…'
-          "
-        ></span>
+    <div class="actions">
+      @if (auth.isAdmin()) {
+        <span class="badge brand desktop-only">Administrador</span>
+      }
+      <span
+        class="live"
+        [class.on]="notifications.connected()"
+        [title]="
+          notifications.connected() ? 'Avisos en tiempo real conectados' : 'Conectando avisos…'
+        "
+      >
+        <i></i
+        ><span class="desktop-only">{{
+          notifications.connected() ? 'En directo' : 'Conectando'
+        }}</span>
+      </span>
+      <button
+        type="button"
+        class="btn btn-ghost btn-icon"
+        [attr.aria-label]="theme.theme() === 'dark' ? 'Usar tema claro' : 'Usar tema oscuro'"
+        (click)="theme.toggle()"
+      >
+        <app-icon [name]="theme.theme() === 'dark' ? 'sun' : 'moon'" [size]="19" />
+      </button>
+
+      <div class="popover-anchor">
         <button
           type="button"
-          class="btn btn-ghost btn-icon"
-          [attr.aria-label]="theme.theme() === 'dark' ? 'Usar tema claro' : 'Usar tema oscuro'"
-          (click)="theme.toggle()"
+          class="btn btn-ghost btn-icon bell"
+          aria-label="Avisos"
+          [attr.aria-expanded]="panelOpen()"
+          (click)="togglePanel()"
         >
-          <app-icon [name]="theme.theme() === 'dark' ? 'sun' : 'moon'" />
-        </button>
-        <div class="popover-anchor">
-          <button
-            type="button"
-            class="btn btn-ghost btn-icon bell"
-            aria-label="Avisos"
-            [attr.aria-expanded]="panelOpen()"
-            (click)="togglePanel()"
-          >
-            <app-icon name="bell" />
-            @if (notifications.unread() > 0) {
-              <span class="dot">{{
-                notifications.unread() > 9 ? '9+' : notifications.unread()
-              }}</span>
-            }
-          </button>
-          @if (panelOpen()) {
-            <div class="popover" role="dialog" aria-label="Últimos avisos">
-              <div class="row between popover-header">
-                <strong>Avisos</strong>
-                <button type="button" class="btn btn-ghost btn-sm" (click)="markAllRead()">
-                  Marcar leídos
-                </button>
-              </div>
-              <ul class="list">
-                @for (n of latest(); track n.id) {
-                  <li class="list-item notification" [class.unread]="!n.read">
-                    <span class="avatar small-avatar"
-                      ><app-icon [name]="iconFor(n)" [size]="18"
-                    /></span>
-                    <div class="grow">
-                      <strong class="small">{{ n.title }}</strong>
-                      <p class="small muted">{{ n.body }}</p>
-                      <span class="small muted">{{ n.createdAt | timeAgo }}</span>
-                    </div>
-                  </li>
-                } @empty {
-                  <li class="empty small">No tienes avisos.</li>
-                }
-              </ul>
-              <a routerLink="/avisos" class="see-all">Ver todos</a>
-            </div>
+          <app-icon name="bell" [size]="19" />
+          @if (notifications.unread() > 0) {
+            <span class="count num">{{
+              notifications.unread() > 9 ? '9+' : notifications.unread()
+            }}</span>
           }
-        </div>
-        <div class="popover-anchor mobile-only">
-          <button
-            type="button"
-            class="avatar avatar-button"
-            aria-label="Menú de usuario"
-            [attr.aria-expanded]="menuOpen()"
-            (click)="menuOpen.set(!menuOpen()); panelOpen.set(false)"
-          >
-            {{ initials() }}
-          </button>
-          @if (menuOpen()) {
-            <div class="popover menu" role="menu">
-              <div class="menu-header">
-                <strong>{{ auth.user()?.fullName }}</strong>
-                <span class="small muted">{{ auth.user()?.email }}</span>
-              </div>
-              @for (item of nav(); track item.path) {
-                @if (!item.mobile) {
-                  <a class="menu-item" role="menuitem" [routerLink]="item.path"
-                    ><app-icon [name]="item.icon" [size]="18" /> {{ item.label }}</a
-                  >
-                }
-              }
-              <button type="button" class="menu-item" role="menuitem" (click)="auth.logout()">
-                <app-icon name="logout" [size]="18" /> Salir
+        </button>
+        @if (panelOpen()) {
+          <div class="popover" role="dialog" aria-label="Últimos avisos">
+            <div class="popover-header">
+              <span class="eyebrow">Últimos avisos</span>
+              <button type="button" class="link-button small" (click)="markAllRead()">
+                Marcar leídos
               </button>
             </div>
-          }
-        </div>
+            <ul class="list">
+              @for (n of latest(); track n.id) {
+                <li class="list-item notification" [class.unread]="!n.read">
+                  <div class="grow">
+                    <div class="row between">
+                      <strong class="small truncate">{{ n.title }}</strong>
+                      <span class="small muted when">{{ n.createdAt | timeAgo }}</span>
+                    </div>
+                    <p class="small muted">{{ n.body }}</p>
+                  </div>
+                </li>
+              } @empty {
+                <li class="empty small">No tienes avisos.</li>
+              }
+            </ul>
+            <a routerLink="/avisos" class="see-all">Ver todos los avisos</a>
+          </div>
+        }
       </div>
-    </header>
 
-    <main id="contenido">
-      <router-outlet />
-    </main>
+      <div class="popover-anchor">
+        <button
+          type="button"
+          class="user-button"
+          aria-label="Menú de usuario"
+          [attr.aria-expanded]="menuOpen()"
+          (click)="menuOpen.set(!menuOpen()); panelOpen.set(false)"
+        >
+          <span class="avatar">{{ initials() }}</span>
+          <span class="desktop-only user-name">{{ auth.firstName() }}</span>
+          <app-icon class="desktop-only" name="chevron" [size]="14" />
+        </button>
+        @if (menuOpen()) {
+          <div class="popover menu" role="menu">
+            <div class="menu-header">
+              <strong>{{ auth.user()?.fullName }}</strong>
+              <span class="small muted">{{ auth.user()?.email }}</span>
+            </div>
+            @for (item of menuNav(); track item.path) {
+              <a
+                class="menu-item"
+                [class.mobile-only]="!item.secondary"
+                role="menuitem"
+                [routerLink]="item.path"
+                >{{ item.label }}</a
+              >
+            }
+            <button type="button" class="menu-item logout" role="menuitem" (click)="auth.logout()">
+              Cerrar sesión
+            </button>
+          </div>
+        }
+      </div>
+    </div>
   </div>
+</header>
 
-  <nav class="bottom-nav" aria-label="Principal (móvil)">
-    @for (item of mobileNav(); track item.path) {
-      <a
-        [routerLink]="item.path"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
-      >
-        <app-icon [name]="item.icon" [size]="22" />
-        <span>{{ item.label }}</span>
-      </a>
-    }
-  </nav>
-</div>
+<main id="contenido">
+  <router-outlet />
+</main>
+
+<nav class="bottom-nav" aria-label="Principal (móvil)">
+  @for (item of mobileNav(); track item.path) {
+    <a
+      [routerLink]="item.path"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+    >
+      <app-icon [name]="item.icon" [size]="20" [stroke]="1.6" />
+      <span>{{ item.label }}</span>
+    </a>
+  }
+</nav>

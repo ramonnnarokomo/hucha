@@ -1,198 +1,191 @@
-.hero-card {
+/* ---------- Posición global ---------- */
+
+.position {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 24px;
-  padding: 28px;
-  border-radius: 22px;
-  color: #fff;
-  background:
-    radial-gradient(circle at 90% 0%, rgb(45 212 191 / 0.35), transparent 45%),
-    linear-gradient(140deg, var(--hero-from), var(--hero-to));
-  box-shadow: var(--shadow);
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 0;
+  padding: 0;
 }
 
-.hero-main {
+.position-main {
   display: grid;
-  align-content: center;
-  gap: 6px;
-}
-
-.hero-label {
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-.hero-amount {
-  font-size: clamp(2rem, 5vw, 2.8rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.hero-skeleton {
-  width: 220px;
-  height: 44px;
-  opacity: 0.4;
-}
-
-.hero-iban {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
-  opacity: 0.9;
-}
-
-.hero-iban app-copy-button {
-  color: #fff;
-}
-
-.hero-side {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.hero-stat {
-  display: grid;
-  gap: 2px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: rgb(255 255 255 / 0.1);
-}
-
-.hero-stat span {
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
-
-.hero-stat strong {
-  font-size: 1.15rem;
-}
-
-.hero-trend {
-  grid-column: 1 / -1;
-  --brand: #5eead4;
-  --border: rgb(255 255 255 / 0.15);
-  --surface: #0f3b38;
-}
-
-.accounts {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(200px, 1fr);
-  gap: 14px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.account-tile {
-  display: grid;
-  gap: 6px;
   align-content: start;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--text);
-  text-decoration: none !important;
-  box-shadow: var(--shadow-sm);
-  transition:
-    transform 0.15s,
-    box-shadow 0.15s;
+  gap: 10px;
+  padding: 24px;
 }
 
-.account-tile:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
+.balance {
+  font-size: clamp(2.2rem, 4.6vw, 3.1rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
 }
 
-.account-tile strong {
-  font-size: 1.2rem;
+.balance .total {
+  padding-bottom: 6px;
+  border-bottom-width: 4px;
 }
 
-.tile-icon {
+.iban {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 6px;
+}
+
+.position-figures {
   display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
-  background: var(--brand-soft);
-  color: var(--brand-text);
+  align-content: start;
+  margin: 0;
+  padding: 16px 24px;
+  border-left: 1px solid var(--border);
 }
 
-.tile-icon.pot {
-  background: var(--warning-soft);
-  color: var(--warning);
+.position-figures > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 0;
+  border-bottom: 1px dotted var(--border-strong);
 }
 
-.tile-name {
-  font-size: 0.85rem;
+.position-figures dt {
   color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.position-figures dd {
+  margin: 0;
+  font-size: 1rem;
   font-weight: 500;
 }
 
-.account-tile.new {
-  place-content: center;
-  justify-items: center;
-  border-style: dashed;
-  color: var(--muted);
-  box-shadow: none;
+.trend {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 6px;
+  padding: 14px 24px 18px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
 }
+
+/* ---------- Cuentas ---------- */
+
+.account-row {
+  color: inherit;
+  text-decoration: none;
+  align-items: center;
+}
+
+.account-row:hover {
+  background: var(--surface-hover);
+}
+
+.account-row .grow > span {
+  display: block;
+}
+
+.name {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.name app-icon {
+  color: var(--muted);
+}
+
+.sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.goal {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.goal .progress {
+  width: 140px;
+  flex: none;
+}
+
+.amount {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* ---------- Movimientos y gasto ---------- */
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 24px;
   align-items: start;
 }
 
 .side-column {
   display: grid;
-  gap: 20px;
-}
-
-.spending {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+  gap: 24px;
 }
 
 .legend-list {
-  flex: 1;
   display: grid;
-  gap: 10px;
-  margin: 0;
+  margin: 14px 0 0;
   padding: 0;
   list-style: none;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .legend-list li {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 7px 0;
+  border-top: 1px solid var(--rule);
 }
 
 .legend-list i {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
+  flex: none;
+  width: 8px;
+  height: 8px;
+}
+
+.share {
+  font-size: 0.78rem;
+}
+
+.more {
+  display: inline-block;
+  margin-top: 12px;
 }
 
 @media (max-width: 960px) {
-  .hero-card,
+  .position,
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
-}
 
-@media (max-width: 520px) {
-  .hero-card {
-    padding: 22px;
+  .position-figures {
+    border-left: 0;
+    border-top: 1px solid var(--border);
   }
 
-  .spending {
-    flex-direction: column;
-    align-items: stretch;
+  .goal .progress {
+    width: 90px;
+  }
+}
+
+@media (max-width: 720px) {
+  .position-main,
+  .position-figures,
+  .trend {
+    padding-left: 16px;
+    padding-right: 16px;
   }
 }
